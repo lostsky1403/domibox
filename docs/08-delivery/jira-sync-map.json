@@ -1,0 +1,22 @@
+[
+  {
+    "local_id": "PROBE-EPIC-01",
+    "jira_key": "DBX-1",
+    "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-1",
+    "issue_type": "Epic",
+    "epic_reference": null,
+    "source_document": "docs/08-delivery/epic-catalogue.md",
+    "sync_status": "verified",
+    "last_verified_at": "2026-11-15"
+  },
+  {
+    "local_id": "PROBE-SPIKE-01",
+    "jira_key": "DBX-2",
+    "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-2",
+    "issue_type": "Task",
+    "epic_reference": "DBX-1",
+    "source_document": "docs/08-delivery/epic-catalogue.md",
+    "sync_status": "verified",
+    "last_verified_at": "2026-11-15"
+  }
+]
