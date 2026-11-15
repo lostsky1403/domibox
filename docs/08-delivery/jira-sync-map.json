@@ -19,5 +19,135 @@
     "sync_status": "unverified",
     "last_verified_at": "2026-11-15",
     "notes": "Probe linkage not evidenced; getJiraIssue(DBX-2) did not return parent/epic-link field. Verify before claiming verified."
+  },
+  {
+    "local_id": "EPIC-02",
+    "jira_key": "DBX-3",
+    "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-3",
+    "issue_type": "Epic",
+    "epic_reference": null,
+    "source_document": "docs/08-delivery/epic-catalogue.md",
+    "sync_status": "verified",
+    "last_verified_at": "2026-11-15"
+  },
+  {
+    "local_id": "EPIC-03",
+    "jira_key": "DBX-4",
+    "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-4",
+    "issue_type": "Epic",
+    "epic_reference": null,
+    "source_document": "docs/08-delivery/epic-catalogue.md",
+    "sync_status": "verified",
+    "last_verified_at": "2026-11-15"
+  },
+  {
+    "local_id": "EPIC-04",
+    "jira_key": "DBX-5",
+    "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-5",
+    "issue_type": "Epic",
+    "epic_reference": null,
+    "source_document": "docs/08-delivery/epic-catalogue.md",
+    "sync_status": "verified",
+    "last_verified_at": "2026-11-15"
+  },
+  {
+    "local_id": "EPIC-05",
+    "jira_key": "DBX-6",
+    "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-6",
+    "issue_type": "Epic",
+    "epic_reference": null,
+    "source_document": "docs/08-delivery/epic-catalogue.md",
+    "sync_status": "verified",
+    "last_verified_at": "2026-11-15"
+  },
+  {
+    "local_id": "EPIC-06",
+    "jira_key": "DBX-7",
+    "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-7",
+    "issue_type": "Epic",
+    "epic_reference": null,
+    "source_document": "docs/08-delivery/epic-catalogue.md",
+    "sync_status": "verified",
+    "last_verified_at": "2026-11-15"
+  },
+  {
+    "local_id": "EPIC-07",
+    "jira_key": "DBX-8",
+    "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-8",
+    "issue_type": "Epic",
+    "epic_reference": null,
+    "source_document": "docs/08-delivery/epic-catalogue.md",
+    "sync_status": "verified",
+    "last_verified_at": "2026-11-15"
+  },
+  {
+    "local_id": "EPIC-08",
+    "jira_key": "DBX-9",
+    "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-9",
+    "issue_type": "Epic",
+    "epic_reference": null,
+    "source_document": "docs/08-delivery/epic-catalogue.md",
+    "sync_status": "verified",
+    "last_verified_at": "2026-11-15"
+  },
+  {
+    "local_id": "EPIC-09",
+    "jira_key": "DBX-10",
+    "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-10",
+    "issue_type": "Epic",
+    "epic_reference": null,
+    "source_document": "docs/08-delivery/epic-catalogue.md",
+    "sync_status": "verified",
+    "last_verified_at": "2026-11-15"
+  },
+  {
+    "local_id": "EPIC-10",
+    "jira_key": "DBX-11",
+    "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-11",
+    "issue_type": "Epic",
+    "epic_reference": null,
+    "source_document": "docs/08-delivery/epic-catalogue.md",
+    "sync_status": "verified",
+    "last_verified_at": "2026-11-15"
+  },
+  {
+    "local_id": "EPIC-11",
+    "jira_key": "DBX-12",
+    "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-12",
+    "issue_type": "Epic",
+    "epic_reference": null,
+    "source_document": "docs/08-delivery/epic-catalogue.md",
+    "sync_status": "verified",
+    "last_verified_at": "2026-11-15"
+  },
+  {
+    "local_id": "EPIC-12",
+    "jira_key": "DBX-13",
+    "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-13",
+    "issue_type": "Epic",
+    "epic_reference": null,
+    "source_document": "docs/08-delivery/epic-catalogue.md",
+    "sync_status": "verified",
+    "last_verified_at": "2026-11-15"
+  },
+  {
+    "local_id": "EPIC-13",
+    "jira_key": "DBX-14",
+    "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-14",
+    "issue_type": "Epic",
+    "epic_reference": null,
+    "source_document": "docs/08-delivery/epic-catalogue.md",
+    "sync_status": "verified",
+    "last_verified_at": "2026-11-15"
+  },
+  {
+    "local_id": "EPIC-14",
+    "jira_key": "DBX-15",
+    "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-15",
+    "issue_type": "Epic",
+    "epic_reference": null,
+    "source_document": "docs/08-delivery/epic-catalogue.md",
+    "sync_status": "verified",
+    "last_verified_at": "2026-11-15"
   }
 ]
