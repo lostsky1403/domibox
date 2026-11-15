@@ -14,9 +14,10 @@
     "jira_key": "DBX-2",
     "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-2",
     "issue_type": "Task",
-    "epic_reference": "DBX-1",
+    "epic_reference": null,
     "source_document": "docs/08-delivery/epic-catalogue.md",
-    "sync_status": "verified",
-    "last_verified_at": "2026-11-15"
+    "sync_status": "unverified",
+    "last_verified_at": "2026-11-15",
+    "notes": "Probe linkage not evidenced; getJiraIssue(DBX-2) did not return parent/epic-link field. Verify before claiming verified."
   }
 ]
