@@ -1,0 +1,29 @@
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+logs/
+
+# Env / secrets (never commit real secrets)
+.env
+.env.*
+!.env.example
+
+# Node/Python common
+node_modules/
+dist/
+build/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Local/temp
+tmp/
+temp/
+*.tmp
