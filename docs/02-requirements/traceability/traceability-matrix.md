@@ -206,7 +206,7 @@ Berikut adalah pemetaan lengkap seluruh story Jira yang telah terverifikasi dan 
 |----------|----------|-------------|-----------|--------|--------------|
 | US-010 | `DBX-22` | `OPS-003`, `OPS-005`, `SEC-008` | Observability, health checks, audit trail | `SYNCED` | 3 |
 
-**Catatan:** Multi-requirement story mencakup health checks (`OPS-003`, `NFR-009`) dan audit trail (`OPS-005`, `SEC-008`). AC mencakup observability/health checks/audit logging (sesuai deskripsi DBX-22). `OPS-001` (autentikasi master admin) dan `SEC-002` **tidak** memiliki AC terverifikasi pada DBX-22 — story-level mapping = GAP (epic-level: `DBX-8`/EPIC-07).
+**Catatan:** Multi-requirement story mencakup health checks (`OPS-003`) dan audit trail (`OPS-005`, `SEC-008`). AC mencakup observability/health checks/audit logging (sesuai deskripsi DBX-22). `OPS-001` (autentikasi master admin) dan `SEC-002` **tidak** memiliki AC terverifikasi pada DBX-22 — story-level mapping = GAP (epic-level: `DBX-8`/EPIC-07).
 
 ### 8.10 EPIC-10: Docker & VPS Deployment (`DBX-11`)
 

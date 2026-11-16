@@ -28,7 +28,7 @@
 ## 4. Rekonsiliasi Kunci yang Telah Dilakukan
 
 - **04-technical (Phase 7 blocker):** spesifikasi kanonikal hadir — `database-schema.md`, `api/openapi.yaml`, `error-catalogue.md`, `data-model.md`, `api-specification.md`, `telegram-bot-specification.md`, `mail-flow-specification.md`, `otp-extraction-specification.md`, `deployment-specification.md`; referensi fungsional (OTP/Telegram) dan indeks (`docs/README.md`, `document-control-register.md`) selaras.
-- **Traceability/ID (review follow-up):** RTM menyelaraskan pemetaan OPS kanonikal (`FR-008/OPS-001..005`: OPS-001 auth, OPS-002 auto-purge/NFR-008, OPS-003 health/NFR-009, OPS-004 rate limit/SEC-009/NFR-012, OPS-005 audit/SEC-008), legacy `LOG-1 → OPS-002/OPS-005`, rentang Mermaid/cakupan ke `NFR-001..012` & `SEC-001..012`. Pemetaan MBX permanen (`FR-003/MBX-003`, `MBX-002` = perpanjangan TTL) dan BRD downstream `SEC-001..012` sudah selaras.
+- **Traceability/ID (review follow-up):** RTM menyelaraskan pemetaan OPS kanonikal (`FR-008/OPS-001..005`: OPS-001 auth, OPS-002 auto-purge/NFR-008, OPS-003 health, OPS-004 rate limit/SEC-009, OPS-005 audit/SEC-008), legacy `LOG-1 → OPS-002/OPS-005`, rentang Mermaid/cakupan ke `NFR-001..012` & `SEC-001..012`. Pemetaan MBX permanen (`FR-003/MBX-003`, `MBX-002` = perpanjangan TTL) dan BRD downstream `SEC-001..012` sudah selaras.
 
 ## 5. Blockers, Gap Terbuka, dan Next Actions
 

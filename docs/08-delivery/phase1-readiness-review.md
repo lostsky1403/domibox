@@ -40,7 +40,7 @@ Phase 1 (documentation bootstrap + Jira reconciliation) is materially complete a
 ## 2. Traceability Coverage
 
 - RTM (`docs/02-requirements/traceability/traceability-matrix.md`) reconciled; Jira placeholders `DBX-STORY-TBD-*` removed; 31 unique DBX issues recorded.
-- OPS mapping canonical: FR-008/OPS-001..005 (auth, auto-purge/NFR-008, health/NFR-009, rate limit/SEC-009/NFR-012, audit/SEC-008).
+- OPS mapping canonical: FR-008/OPS-001..005 (auth, auto-purge/NFR-008, health, rate limit/SEC-009, audit/SEC-008). Note: OPS-001 (auth) and OPS-004 (rate limiting) have no story-level mapping/AC yet (story-level GAP; epic-level DBX-8/EPIC-07).
 - Legacy `LOG-1 → OPS-002/OPS-005`; Mermaid coverage to NFR-001..012 & SEC-001..012.
 - MBX permanent mapping: FR-003/MBX-003 (permanent conversion), MBX-002 (TTL extension); BRD downstream SEC-001..012.
 - ADR status and TC-001..TC-008 remain `Pending`/`PROPOSED` — traceability links exist but verification not executed.
@@ -66,7 +66,7 @@ All 12 ADRs (`ADR-001`..`ADR-012`) are in `PROPOSED` / `NEEDS OWNER APPROVAL` st
 
 - `docs/05-security/threat-model.md` exists; `docs/05-security-privacy/` is scaffold only → security/privacy artefacts split and incomplete.
 - HTML sanitization (DOMPurify + iframe isolation) specified but not implemented/tested (DBX-20).
-- WebAuthn/TOTP, rate limiting (SEC-009/NFR-012) specified; not implemented.
+- WebAuthn/TOTP, rate limiting (SEC-009) specified; not implemented.
 - Port 25 exposure risk: provider policy and firewall config unverified (DBX-25).
 - Secrets management for PoC/production not yet defined; PoC must use throwaway values.
 - No security review executed; no pentest baseline.
