@@ -71,7 +71,7 @@ Exit code: 255
 - CPU/RAM availability
 - Disk space
 - Docker/Compose installation
-- Port 25/465/587/80/443/993 availability
+- Port 25/80/443 availability (minimal exposure per plan §2)
 - UFW/firewall configuration
 - Existing workloads (rustfs container)
 
@@ -112,11 +112,8 @@ The following changes are **approval-gated** and MUST NOT be executed without ex
 
 ### Firewall Changes (Tencent Cloud Security Group)
 - [ ] **Allow inbound TCP/25** (SMTP) from 0.0.0.0/0
-- [ ] **Allow inbound TCP/465** (SMTPS) from 0.0.0.0/0
-- [ ] **Allow inbound TCP/587** (Submission) from 0.0.0.0/0
 - [ ] **Allow inbound TCP/80** (HTTP, for ACME challenge) from 0.0.0.0/0
 - [ ] **Allow inbound TCP/443** (HTTPS, for JMAP/WebUI) from 0.0.0.0/0
-- [ ] **Allow inbound TCP/993** (IMAPS) from 0.0.0.0/0
 - [ ] **Verify TCP/22** (SSH) is already allowed (currently BLOCKED)
 
 ### VPS Changes (Ubuntu)
