@@ -2,7 +2,7 @@
 
 | Status | Versi | Tanggal | Penulis | Dokumen Terkait |
 | --- | --- | --- | --- | --- |
-| PROPOSED | 0.1 | 2026-11-15 | omp-orchestrator/ArchCore | `docs/00-governance/project-charter.md`<br>`docs/02-requirements/srs.md`<br>`docs/02-requirements/nfr-spec.md`<br>`docs/03-architecture/architecture-overview.md`<br>`docs/03-architecture/capacity-planning.md`<br>`docs/03-architecture/adr/ADR-002.md`<br>`docs/03-architecture/adr/ADR-005.md`<br>`docs/03-architecture/adr/ADR-006.md`<br>`docs/03-architecture/adr/ADR-007.md`<br>`docs/03-architecture/adr/ADR-008.md` |
+| PROPOSED | 0.2 | 2026-11-16 | omp-orchestrator/ArchCore | `docs/00-governance/project-charter.md`<br>`docs/02-requirements/srs.md`<br>`docs/02-requirements/nfr-spec.md`<br>`docs/03-architecture/architecture-overview.md`<br>`docs/03-architecture/capacity-planning.md`<br>`docs/03-architecture/adr/ADR-002.md`<br>`docs/03-architecture/adr/ADR-005.md`<br>`docs/03-architecture/adr/ADR-006.md`<br>`docs/03-architecture/adr/ADR-007.md`<br>`docs/03-architecture/adr/ADR-008.md` |
 
 ---
 
