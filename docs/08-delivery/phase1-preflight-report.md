@@ -1,14 +1,14 @@
 # Phase 1 PoC Preflight Report — DomiBox
 
 **Date:** 2026-11-16  
-**Status:** PARTIALLY READY (DNS verified; SSH/VPS preflight BLOCKED)
+**Status:** PARTIALLY READY (DNS verified; VPS readiness NOT VERIFIED — SSH timeout from OMP execution environment only)
 
 ---
 
 ## 1. DNS Baseline (VERIFIED 2026-11-16)
 
 **Method:** DNS-over-HTTPS (DoH) queries to `https://dns.google/resolve`  
-**Timestamp:** 2026-11-16T15:42:00Z (UTC)  
+**Timestamp:** 2026-11-16T08:35:20Z (UTC)
 **Domain:** sintaksis.biz.id
 
 ### Record Type Results
@@ -40,11 +40,11 @@ dylan.ns.cloudflare.com. dns.cloudflare.com. 2420070819 10000 2400 604800 1800
 
 ---
 
-## 2. VPS Preflight (BLOCKED — SSH Unreachable)
+## 2. VPS Preflight (NOT VERIFIED — SSH timeout from OMP execution environment)
 
 **Target:** vps-tencent3b (43.153.206.84)  
 **Method:** SSH with BatchMode + ConnectTimeout=30s  
-**Timestamp:** 2026-11-16T15:42:30Z (from OMP execution environment)
+**Timestamp:** exact UTC not captured (wall time 19.28s, exit code 255)
 
 ### Connection Attempt
 ```bash
@@ -133,11 +133,15 @@ The following changes are **approval-gated** and MUST NOT be executed without ex
 - [ ] **Create test accounts** (1 temporary, 1 permanent)
 
 ### Rollback Plan (Component-Scoped)
-- [ ] **Stop containers:** `docker compose -p domibox-poc down`
-- [ ] **Remove volumes:** `docker volume rm domibox-poc_stalwart-data domibox-poc_postgres-data` (VERIFY OWNERSHIP FIRST)
-- [ ] **Remove DNS records:** Delete A/MX/TXT records from Cloudflare
+
+**Reversible Actions (no approval required):**
+- [ ] **Stop containers:** `docker compose -p domibox-poc stop` (preserves data, can restart)
+- [ ] **Preserve evidence:** Archive logs to `docs/08-delivery/poc-evidence/` before any destructive actions
+
+**Approval-Gated Data Destruction (requires explicit owner approval):**
+- [ ] **Remove containers and volumes:** `docker compose -p domibox-poc down -v` (VERIFY OWNERSHIP FIRST: only `domibox-poc` volumes)
+- [ ] **Delete PoC-added DNS records ONLY:** Remove A/MX/TXT records added for this PoC from Cloudflare zone `sintaksis.biz.id` (zone pre-exists — NEVER delete zone or pre-existing records)
 - [ ] **Close firewall ports:** Remove Security Group rules for 25/80/443
-- [ ] **Preserve evidence:** Archive logs to `docs/08-delivery/poc-evidence/` before cleanup
 
 **NO VPS DESTRUCTION:** Rollback is component-scoped only. The VPS itself will NOT be terminated or reprovisioned.
 
@@ -146,7 +150,7 @@ The following changes are **approval-gated** and MUST NOT be executed without ex
 ## 5. Verdict: PARTIALLY READY
 
 ### What is VERIFIED
-- ✅ DNS baseline complete (queried MX/A/TXT/DMARC/NS for specified names; no records found for those queries, Cloudflare delegation confirmed, 2026-11-16T15:42:00Z)
+- ✅ DNS baseline complete (queried MX/A/TXT/DMARC/NS for specified names; no records found for those queries, Cloudflare delegation confirmed, 2026-11-16T08:35:20Z)
 - ✅ Stalwart v1.1.0 pinned with upgrade caveat
 - ✅ Phase 1 PoC plan corrected (mission constraints satisfied)
 - ✅ §13 API claims marked NOT VERIFIED
@@ -155,7 +159,7 @@ The following changes are **approval-gated** and MUST NOT be executed without ex
 - ✅ Approval-gated infrastructure changes listed
 
 ### What is NOT VERIFIED
-- ❌ **VPS readiness:** SSH unreachable (connection timeout 19.28s, exit code 255, 2026-11-16T15:42:30Z), cannot confirm CPU/RAM/Disk/Docker/ports
+- ❌ **VPS readiness:** SSH timeout from OMP execution environment (connection timeout 19.28s, exit code 255, exact UTC not captured), cannot confirm CPU/RAM/Disk/Docker/ports
 - ❌ **Stalwart Management API:** Endpoints/auth/permissions not validated from official docs
 - ❌ **Port 25 inbound:** Cannot test without VPS access + firewall approval
 - ❌ **DNS configuration:** Records not yet added (approval-gated)
@@ -175,7 +179,7 @@ The following changes are **approval-gated** and MUST NOT be executed without ex
 
 ## 6. Evidence
 
-### DNS Query Raw Responses (2026-11-16T15:42:00Z)
+### DNS Query Raw Responses (2026-11-16T08:35:20Z)
 
 **MX Query:**
 ```json
@@ -230,7 +234,7 @@ Result: NXDOMAIN → **DMARC RECORD DOES NOT EXIST**
 ```
 Result: NOERROR → **Cloudflare nameservers confirmed**
 
-### SSH Connection Log (2026-11-16T15:42:30Z)
+### SSH Connection Log (exact UTC not captured)
 ```
 $ ssh -o ConnectTimeout=30 -o BatchMode=yes vps-tencent3b "echo 'SSH_OK'; uname -a; ..."
 kex_exchange_identification: read: Connection timed out
