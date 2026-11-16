@@ -52,7 +52,7 @@ Per-run: `docker compose -p domibox-poc down -v` (explicit project name); delete
 ## 10. Pass/Fail Criteria
 
 ### Phase-1A (Stalwart-only, PASS gates)
-PASS only if ALL: (1) port 25 reachable + delivery accepted/stored (DBX-25); (2) Cloudflare DNS/MX configured + conflict path exercised (DBX-31); (3) Stalwart scenarios 1-5 pass; (4) JMAP-01..07 pass; (5) lifecycle 7.1 (DBX-29 temp mailbox) + 7.4 (DBX-31 conflict detection) pass; (6) benchmark meets pass (DBX-26); (7) security prereqs satisfied, no secret leak; (8) evidence captured. Any FAIL -> Phase-1A FAILS; document in risk register; decide remediate or descope.
+PASS only if ALL: (1) port 25 reachable + delivery accepted/stored (DBX-25); (2) Cloudflare DNS/MX configured + conflict-detection logic verified where possible (DBX-31: clean-zone positive path exercised; conflict path NOT TESTABLE until a simulated route*.mx.cloudflare.net record exists); (3) Stalwart scenarios 1-5 pass; (4) JMAP-01..07 pass; (5) lifecycle 7.1 (DBX-29 temp mailbox) + 7.4 (DBX-31 conflict detection) pass; (6) benchmark meets pass (DBX-26); (7) security prereqs satisfied, no secret leak; (8) evidence captured. Any FAIL -> Phase-1A FAILS; document in risk register; decide remediate or descope.
 
 ### Phase-1B (App-dependent, BLOCKED until DomiBox code exists)
 Lifecycle 7.2 (DBX-21 auto-purge scheduler) and 7.3 (DBX-30 temp->permanent conversion) require DomiBox application code that does not exist yet. These tests are **BLOCKED** and cannot be executed during Phase-1 PoC. They will be deferred to Phase-2 integration testing after the application layer is implemented.
