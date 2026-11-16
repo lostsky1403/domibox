@@ -31,7 +31,7 @@ dylan.ns.cloudflare.com. dns.cloudflare.com. 2420070819 10000 2400 604800 1800
 - **SPF/DKIM/DMARC:** NOT CONFIGURED
 - **A/AAAA:** NOT CONFIGURED (no web server)
 - **Nameservers:** Cloudflare (dylan + kristina.ns.cloudflare.com)
-- **Zone Status:** Active, delegated to Cloudflare, but no records configured
+- **Zone Status:** Zone exists and is served by Cloudflare (NS/SOA verified), but no records configured
 
 **Implication for PoC:** DNS is a clean slate. No conflicts with existing mail infrastructure. Cloudflare Email Routing is NOT enabled (no `route*.mx.cloudflare.net` MX records). PoC can proceed with DNS configuration without conflict detection (DBX-31 conflict path NOT exercised — clean domain).
 
@@ -122,7 +122,7 @@ The following changes are **approval-gated** and MUST NOT be executed without ex
 ### VPS Changes (Ubuntu)
 - [ ] **Install Docker Engine** (if not present)
 - [ ] **Install Docker Compose v2** (if not present)
-- [ ] **Configure UFW:** `ufw allow 22,25,80,443,465,587,993/tcp`
+- [ ] **Configure UFW:** `ufw allow 22,25,80,443/tcp`
 - [ ] **Deploy Stalwart v1.1.0** via Docker Compose (isolated project: `domibox-poc`)
 - [ ] **Deploy PostgreSQL 16** via Docker Compose (same project)
 - [ ] **Generate ACME certificates** via Let's Encrypt (requires port 80/443 open)
@@ -134,7 +134,7 @@ The following changes are **approval-gated** and MUST NOT be executed without ex
 - [ ] **Stop containers:** `docker compose -p domibox-poc down`
 - [ ] **Remove volumes:** `docker volume rm domibox-poc_stalwart-data domibox-poc_postgres-data` (VERIFY OWNERSHIP FIRST)
 - [ ] **Remove DNS records:** Delete A/MX/TXT records from Cloudflare
-- [ ] **Close firewall ports:** Remove Security Group rules for 25/465/587/993
+- [ ] **Close firewall ports:** Remove Security Group rules for 25/80/443
 - [ ] **Preserve evidence:** Archive logs to `docs/08-delivery/poc-evidence/` before cleanup
 
 **NO VPS DESTRUCTION:** Rollback is component-scoped only. The VPS itself will NOT be terminated or reprovisioned.
