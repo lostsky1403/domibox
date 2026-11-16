@@ -15,11 +15,11 @@
     "jira_key": "DBX-2",
     "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-2",
     "issue_type": "Task",
-    "epic_reference": null,
+    "epic_reference": "EPIC-12",
     "source_document": "docs/08-delivery/epic-catalogue.md",
-    "sync_status": "unverified",
-    "last_verified_at": "2026-11-15",
-    "notes": "Probe epic-link registration. Existence/type/status/labels evidenced (Task, To Do, [infrastructure, spike]); parent/epic linkage NOT VERIFIED (parent null in search/get responses)."
+    "sync_status": "verified",
+    "last_verified_at": "2026-11-16",
+    "notes": "Verified 2026-11-16 via editJiraIssue(parent=DBX-13) + getJiraIssue(full): parent DBX-13 (EPIC-12) present. Existence/type/status/labels: Task, To Do, [infrastructure, spike]. Scope: probe/epic-link registration."
   },
   {
     "local_id": "EPIC-02",
@@ -169,142 +169,175 @@
     "jira_key": "DBX-16",
     "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-16",
     "issue_type": "Story",
-    "epic_reference": null,
+    "epic_reference": "EPIC-03",
     "source_document": "docs/08-delivery/epic-catalogue.md",
     "sync_status": "verified",
-    "last_verified_at": "2026-11-15",
-    "notes": "Verified Jira issue (search+get 2026-11-15). Summary: 'US-004 — Penerimaan Email Inbound & Penyimpanan Raw EML (DomiBox)'; status To Do; labels [domibox,mvp,story]. Epic linkage/parent NOT VERIFIED (parent null). CATALOGUE COLLISION: catalogue US-004 = 'Penanganan Konflik Cloudflare Email Routing' (different scope, no distinct Jira story mapped). Description/AC not fully evidenced in observed MCP responses."
+    "last_verified_at": "2026-11-16",
+    "notes": "Verified 2026-11-16 via getJiraIssue: parent DBX-4 (EPIC-03), Story, To Do, [domibox,mvp,story], SP=8. Scope: inbound reception + raw EML persistence (not legacy catalogue conflict-handling US-004). Description/AC updated 2026-11-16 with collision note and testable AC (concise). Story points unchanged."
   },
   {
     "local_id": "JIRA-STORY-US-005",
     "jira_key": "DBX-17",
     "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-17",
     "issue_type": "Story",
-    "epic_reference": null,
+    "epic_reference": "EPIC-04",
     "source_document": "docs/08-delivery/epic-catalogue.md",
     "sync_status": "verified",
-    "last_verified_at": "2026-11-15",
-    "notes": "Verified Jira issue (search+get 2026-11-15). Summary: 'US-005 — Ekstraksi OTP & Tautan Aktivasi (DomiBox)'; status To Do; labels [domibox,mvp,story]. Epic linkage/parent NOT VERIFIED (parent null). SEMANTIC OVERLAP with catalogue US-002 'Ekstraksi Kode OTP Otomatis'; catalogue US-005 = auto-purge (different). Description/AC not fully evidenced."
+    "last_verified_at": "2026-11-16",
+    "notes": "Verified 2026-11-16 via getJiraIssue: parent DBX-5 (EPIC-04), Story, To Do, [domibox,mvp,story], SP=5. Canonical mapping: legacy catalogue US-002 (OTP extraction) → US-005/DBX-17; catalogue US-005 (auto-purge) → US-009/DBX-21. Description/AC updated 2026-11-16."
   },
   {
     "local_id": "JIRA-STORY-US-006",
     "jira_key": "DBX-18",
     "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-18",
     "issue_type": "Story",
-    "epic_reference": null,
+    "epic_reference": "EPIC-05",
     "source_document": "docs/08-delivery/epic-catalogue.md",
     "sync_status": "verified",
-    "last_verified_at": "2026-11-15",
-    "notes": "Verified Jira issue (search+get 2026-11-15). Summary: 'US-006 — Dashboard Web Inbox Viewer (DomiBox)'; status To Do; labels [domibox,mvp,story]. Epic linkage/parent NOT VERIFIED (parent null). CATALOGUE COLLISION: catalogue US-006 = 'Notifikasi & Ekstraksi OTP Instan via Telegram Bot' (different). Description/AC not fully evidenced."
+    "last_verified_at": "2026-11-16",
+    "notes": "Verified 2026-11-16 via getJiraIssue: parent DBX-6 (EPIC-05), Story, To Do, [domibox,mvp,story], SP=8. Catalogue collision: legacy US-006 = Telegram notif → US-007/DBX-19; this issue is dashboard inbox viewer. Description/AC updated 2026-11-16."
   },
   {
     "local_id": "JIRA-STORY-US-007",
     "jira_key": "DBX-19",
     "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-19",
     "issue_type": "Story",
-    "epic_reference": null,
+    "epic_reference": "EPIC-06",
     "source_document": "docs/08-delivery/epic-catalogue.md",
     "sync_status": "verified",
-    "last_verified_at": "2026-11-15",
-    "notes": "Verified Jira issue (search+get 2026-11-15). Summary: 'US-007 — Notifikasi Telegram Instan & Salin OTP (DomiBox)'; status To Do; labels [domibox,mvp,story]. Epic linkage/parent NOT VERIFIED (parent null). SEMANTIC OVERLAP with catalogue US-006 (Telegram notif + OTP). Description/AC not fully evidenced."
+    "last_verified_at": "2026-11-16",
+    "notes": "Verified 2026-11-16 via getJiraIssue: parent DBX-7 (EPIC-06), Story, To Do, [domibox,mvp,story], SP=5. Canonical mapping: legacy catalogue US-006 → US-007/DBX-19 (Telegram notif/OTP copy). Description/AC updated 2026-11-16."
   },
   {
     "local_id": "JIRA-STORY-US-008",
     "jira_key": "DBX-20",
     "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-20",
     "issue_type": "Story",
-    "epic_reference": null,
+    "epic_reference": "EPIC-07",
     "source_document": "docs/08-delivery/epic-catalogue.md",
     "sync_status": "verified",
-    "last_verified_at": "2026-11-15",
-    "notes": "Verified Jira issue (search+get 2026-11-15). Summary: 'US-008 — Sanitasi HTML Email & Isolasi Iframe (DomiBox)'; status To Do; labels [domibox,mvp,story]. Epic linkage/parent NOT VERIFIED (parent null). No direct catalogue US-001..006 counterpart. Description/AC not fully evidenced."
+    "last_verified_at": "2026-11-16",
+    "notes": "Verified 2026-11-16 via getJiraIssue: parent DBX-8 (EPIC-07), Story, To Do, [domibox,mvp,story], SP=5. No direct legacy catalogue US-001..006 counterpart. Description/AC updated 2026-11-16."
   },
   {
     "local_id": "JIRA-STORY-US-009",
     "jira_key": "DBX-21",
     "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-21",
     "issue_type": "Story",
-    "epic_reference": null,
+    "epic_reference": "EPIC-08",
     "source_document": "docs/08-delivery/epic-catalogue.md",
     "sync_status": "verified",
-    "last_verified_at": "2026-11-15",
-    "notes": "Verified Jira issue (search+get 2026-11-15). Summary: 'US-009 — Auto-Purge & Cleanup Job Terjadwal (DomiBox)'; status To Do; labels [domibox,mvp,story]. Epic linkage/parent NOT VERIFIED (parent null). SEMANTIC OVERLAP with catalogue US-005 'Pembersihan Otomatis Mailbox Kedaluwarsa (Auto-Purge)'. Description/AC not fully evidenced."
+    "last_verified_at": "2026-11-16",
+    "notes": "Verified 2026-11-16 via getJiraIssue: parent DBX-9 (EPIC-08), Story, To Do, [domibox,mvp,story], SP=5. Canonical mapping: legacy catalogue US-005 (auto-purge) → US-009/DBX-21. Description/AC updated 2026-11-16."
   },
   {
     "local_id": "JIRA-STORY-US-010",
     "jira_key": "DBX-22",
     "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-22",
     "issue_type": "Story",
-    "epic_reference": null,
+    "epic_reference": "EPIC-09",
     "source_document": "docs/08-delivery/epic-catalogue.md",
     "sync_status": "verified",
-    "last_verified_at": "2026-11-15",
-    "notes": "Verified Jira issue (search+get 2026-11-15). Summary: 'US-010 — Observability, Logging & Audit Trail (DomiBox)'; status To Do; labels [domibox,mvp,story]. Epic linkage/parent NOT VERIFIED (parent null). Description/AC not fully evidenced."
+    "last_verified_at": "2026-11-16",
+    "notes": "Verified 2026-11-16 via getJiraIssue: parent DBX-10 (EPIC-09), Story, To Do, [domibox,mvp,story], SP=5. Description/AC updated 2026-11-16."
   },
   {
     "local_id": "JIRA-STORY-US-011",
     "jira_key": "DBX-23",
     "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-23",
     "issue_type": "Story",
-    "epic_reference": null,
+    "epic_reference": "EPIC-10",
     "source_document": "docs/08-delivery/epic-catalogue.md",
     "sync_status": "verified",
-    "last_verified_at": "2026-11-15",
-    "notes": "Verified Jira issue (search+get 2026-11-15). Summary: 'US-011 — Docker Compose & Reverse Proxy TLS (DomiBox)'; status To Do; labels [domibox,mvp,story]. Epic linkage/parent NOT VERIFIED (parent null). Description/AC not fully evidenced."
+    "last_verified_at": "2026-11-16",
+    "notes": "Verified 2026-11-16 via getJiraIssue: parent DBX-11 (EPIC-10), Story, To Do, [domibox,mvp,story], SP=5. Description/AC updated 2026-11-16."
   },
   {
     "local_id": "JIRA-STORY-US-012",
     "jira_key": "DBX-24",
     "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-24",
     "issue_type": "Story",
-    "epic_reference": null,
+    "epic_reference": "EPIC-11",
     "source_document": "docs/08-delivery/epic-catalogue.md",
     "sync_status": "verified",
-    "last_verified_at": "2026-11-15",
-    "notes": "Verified Jira issue (search+get 2026-11-15). Summary: 'US-012 — Test Suite Unit/Integrasi/E2E (DomiBox)'; status To Do; labels [domibox,mvp,story]. Epic linkage/parent NOT VERIFIED (parent null). Description/AC not fully evidenced."
+    "last_verified_at": "2026-11-16",
+    "notes": "Verified 2026-11-16 via getJiraIssue: parent DBX-12 (EPIC-11), Story, To Do, [domibox,mvp,story], SP=5. Description/AC updated 2026-11-16."
   },
   {
     "local_id": "JIRA-STORY-US-013",
     "jira_key": "DBX-25",
     "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-25",
     "issue_type": "Story",
-    "epic_reference": null,
+    "epic_reference": "EPIC-12",
     "source_document": "docs/08-delivery/epic-catalogue.md",
     "sync_status": "verified",
-    "last_verified_at": "2026-11-15",
-    "notes": "Verified Jira issue (search+get 2026-11-15). Summary: 'US-013 — Validasi Port 25 Inbound Tencent (DomiBox)'; status To Do; labels [domibox,mvp,story]. Epic linkage/parent NOT VERIFIED (parent null). Description/AC not fully evidenced."
+    "last_verified_at": "2026-11-16",
+    "notes": "Verified 2026-11-16 via getJiraIssue: parent DBX-13 (EPIC-12), Story, To Do, [domibox,mvp,story], SP=3. Description/AC updated 2026-11-16."
   },
   {
     "local_id": "JIRA-STORY-US-014",
     "jira_key": "DBX-26",
     "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-26",
     "issue_type": "Story",
-    "epic_reference": null,
+    "epic_reference": "EPIC-12",
     "source_document": "docs/08-delivery/epic-catalogue.md",
     "sync_status": "verified",
-    "last_verified_at": "2026-11-15",
-    "notes": "Verified Jira issue (search+get 2026-11-15). Summary: 'US-014 — Benchmark RAM Stalwart + PostgreSQL (DomiBox)'; status To Do; labels [domibox,mvp,story]. Epic linkage/parent NOT VERIFIED (parent null). Description/AC not fully evidenced."
+    "last_verified_at": "2026-11-16",
+    "notes": "Verified 2026-11-16 via getJiraIssue: parent DBX-13 (EPIC-12), Story, To Do, [domibox,mvp,story], SP=3. Description/AC updated 2026-11-16."
   },
   {
     "local_id": "JIRA-STORY-US-015",
     "jira_key": "DBX-27",
     "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-27",
     "issue_type": "Story",
-    "epic_reference": null,
+    "epic_reference": "EPIC-13",
     "source_document": "docs/08-delivery/epic-catalogue.md",
     "sync_status": "verified",
-    "last_verified_at": "2026-11-15",
-    "notes": "Verified Jira issue (search+get 2026-11-15). Summary: 'US-015 — Dokumentasi & Governance Baseline (DomiBox)'; status To Do; labels [domibox,mvp,story]. Epic linkage/parent NOT VERIFIED (parent null). Description/AC not fully evidenced."
+    "last_verified_at": "2026-11-16",
+    "notes": "Verified 2026-11-16 via getJiraIssue: parent DBX-14 (EPIC-13), Story, To Do, [domibox,mvp,story], SP=5. Description/AC updated 2026-11-16."
   },
   {
     "local_id": "JIRA-STORY-US-016",
     "jira_key": "DBX-28",
     "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-28",
     "issue_type": "Story",
-    "epic_reference": null,
+    "epic_reference": "EPIC-14",
     "source_document": "docs/08-delivery/epic-catalogue.md",
     "sync_status": "verified",
-    "last_verified_at": "2026-11-15",
-    "notes": "Verified Jira issue (search+get 2026-11-15). Summary: 'US-016 — Checklist Kesiapan Rilis MVP (DomiBox)'; status To Do; labels [domibox,mvp,story]. Epic linkage/parent NOT VERIFIED (parent null). Description/AC not fully evidenced."
+    "last_verified_at": "2026-11-16",
+    "notes": "Verified 2026-11-16 via getJiraIssue: parent DBX-15 (EPIC-14), Story, To Do, [domibox,mvp,story], SP=3. Description/AC updated 2026-11-16."
+  },
+  {
+    "local_id": "JIRA-STORY-US-017",
+    "jira_key": "DBX-29",
+    "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-29",
+    "issue_type": "Story",
+    "epic_reference": "EPIC-02",
+    "source_document": "docs/08-delivery/epic-catalogue.md",
+    "sync_status": "verified",
+    "last_verified_at": "2026-11-16",
+    "notes": "Created & verified 2026-11-16: parent DBX-3 (EPIC-02), Story, To Do, [domibox,mvp,story]. Canonical US-017 supersedes legacy catalogue US-001 (temporary mailbox). Description includes preconditions, 3 testable AC scenarios, and proposed values marked as not confirmed (TTL/latency)."
+  },
+  {
+    "local_id": "JIRA-STORY-US-018",
+    "jira_key": "DBX-30",
+    "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-30",
+    "issue_type": "Story",
+    "epic_reference": "EPIC-02",
+    "source_document": "docs/08-delivery/epic-catalogue.md",
+    "sync_status": "verified",
+    "last_verified_at": "2026-11-16",
+    "notes": "Created & verified 2026-11-16: parent DBX-3 (EPIC-02), Story, To Do, [domibox,mvp,story]. Canonical US-018 supersedes legacy catalogue US-003 (temp→permanent conversion). Description includes preconditions, 3 testable AC scenarios, and proposed quota marked as not confirmed."
+  },
+  {
+    "local_id": "JIRA-STORY-US-019",
+    "jira_key": "DBX-31",
+    "jira_url": "https://fikrichaerul.atlassian.net/browse/DBX-31",
+    "issue_type": "Story",
+    "epic_reference": "EPIC-01",
+    "source_document": "docs/08-delivery/epic-catalogue.md",
+    "sync_status": "verified",
+    "last_verified_at": "2026-11-16",
+    "notes": "Created & verified 2026-11-16: parent DBX-1 (EPIC-01), Story, To Do, [domibox,mvp,story]. Canonical US-019 supersedes legacy catalogue US-004 (Cloudflare Email Routing conflict). Represented as Story for user-visible onboarding/AC traceability; tasks may be split later. AC includes conflict detection, non-conflict, and DNS failure scenarios."
   }
 ]
