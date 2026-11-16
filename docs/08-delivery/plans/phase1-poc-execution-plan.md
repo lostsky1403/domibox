@@ -10,7 +10,7 @@
 Validate three feasibility gates blocking implementation: (1) inbound mail reachability on port 25 + Stalwart SMTP acceptance (DBX-25); (2) resource envelope Stalwart+PostgreSQL within VPS RAM/CPU (DBX-26); (3) lifecycle correctness create/expiry/purge/permanent-conversion (DBX-21/29/30/31). Secondary: JMAP read/write, Cloudflare DNS/MX prereqs, rollback/cleanup, single pass/fail verdict with evidence. Out of scope: dashboard, Telegram, OTP extraction, sanitization, observability hardening, release cutover.
 
 ## 2. Environment & Prerequisites
-Existing VPS `vps-tencent3b` (Ubuntu 24.04 LTS, 2 vCPU, 3.6 GiB RAM, public IP 43.153.206.84); Cloudflare zone + scoped API token; dedicated PoC domain; Docker Compose v2; Stalwart v1.0.3 (2026-11-04); PostgreSQL 15+; tools dig/swaks/curl/jq. Security prereqs: least-privilege token, default-deny firewall (open only 22/25/80/443), throwaway secrets, disposable data, STARTTLS via ACME, audit logging retained.
+Existing VPS `vps-tencent3b` (Ubuntu 24.04 LTS, 2 vCPU, 3.6 GiB RAM, public IP 43.153.206.84); Cloudflare zone + scoped API token; dedicated PoC domain; Docker Compose v2; Stalwart v1.1.0 (2026-11-09); PostgreSQL 15+; tools dig/swaks/curl/jq. Security prereqs: least-privilege token, default-deny firewall (open only 22/25/80/443), throwaway secrets, disposable data, STARTTLS via ACME, audit logging retained. **Upgrade caveat:** v1.1.0 adds passkey permissions to default roles; if upgrading from v1.0.x, set `STALWART_UPDATE_ROLE_PERMISSIONS=true` once during migration.
 
 ## 3. Port 25 Inbound Validation (DBX-25)
 1. Verify existing VPS `vps-tencent3b` public IP + PTR record.
@@ -66,7 +66,7 @@ Evidence under docs/08-delivery/poc-evidence/ (create during execution) or attac
 
 ## 13. Stalwart Management API Reference (Added 2026-11-16)
 
-**Stalwart v1.0.3** exposes a Management API for account/alias/mailbox operations. Standard JMAP `Mailbox/get` is read-only and returns folder listings; account creation/modification requires `x:Account/set` (Management API extension).
+**Stalwart v1.1.0** exposes a Management API for account/alias/mailbox operations. Standard JMAP `Mailbox/get` is read-only and returns folder listings; account creation/modification requires `x:Account/set` (Management API extension).
 
 **Key endpoints:**
 - `x:Account/set` — create/modify/delete mail accounts (requires admin auth)

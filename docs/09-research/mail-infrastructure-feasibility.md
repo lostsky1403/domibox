@@ -21,7 +21,7 @@ Setiap fakta infrastruktur ditandai dengan label ketat sesuai standar tata kelol
 | ID Fakta | Parameter / Aspek | Temuan Empiris & Justifikasi Teknis | Status Bukti | Rujukan Dokumen / Sumber |
 | :---: | --- | --- | :---: | --- |
 | **F1** | Kebijakan Port 25 Tencent Cloud | Port TCP 25 **Inbound** terbuka dan dapat dikendalikan melalui Tencent Security Group & UFW. Port TCP 25 **Outbound** diblokir secara permanen oleh Tencent Cloud untuk pencegahan spam publik. Konsekuensi: MVP dibatasi 100% pada *inbound-only* (penerimaan email). | `VERIFIED` | Inspeksi CVM Tencent Cloud, `ADR-010`, `docs/09-research/mail-infrastructure-suitability.md` Bagian 2.1 |
-| **F2** | Batasan Lisensi Stalwart Mail Server | Stalwart v1.0.3 Community Edition berlisensi AGPL-3.0. Fitur bawaan *Masked Email* merupakan fitur berbayar (*Enterprise-only*). DomiBox harus mengimplementasikan siklus hidup alamat sementara menggunakan primitif *virtual alias* dan *JMAP API* bawaan Community Edition. | `VERIFIED` | Audit Dokumentasi & Lisensi Stalwart v1.0.3, `ADR-002`, `ADR-003` |
+| **F2** | Batasan Lisensi Stalwart Mail Server | Stalwart v1.1.0 Community Edition berlisensi AGPL-3.0. Fitur bawaan *Masked Email* merupakan fitur berbayar (*Enterprise-only*). DomiBox harus mengimplementasikan siklus hidup alamat sementara menggunakan primitif *virtual alias* dan *JMAP API* bawaan Community Edition. | `VERIFIED` | Audit Dokumentasi & Lisensi Stalwart v1.1.0, `ADR-002`, `ADR-003` |
 | **F3** | Konflik Cloudflare Email Routing | Mengaktifkan *Cloudflare Email Routing* pada domain apex (`sintaksis.biz.id`) akan menimpa rekaman DNS MX ke server Cloudflare (`route*.mx.cloudflare.net`), sehingga paket SMTP port 25 tidak diarahkan ke IP VPS. Solusi: Gunakan rekaman MX langsung ke IP VPS, atau delegasikan subdomain terpisah (`mail.sintaksis.biz.id`). | `VERIFIED` | Pengujian DoH Cloudflare DNS & Evaluasi Konflik MX, `SRS.md`, `ADR-010` |
 | **F4** | Ketiadaan Otomatisasi TTL Bawaan Stalwart | Stalwart Community Edition tidak memiliki scheduler internal untuk kedaluwarsa otomatis alamat email (*TTL auto-purge*). Logika penghitungan masa aktif dan penghapusan virtual alias wajib dieksekusi oleh Background Worker DomiBox melalui panggilan JMAP Management API. | `VERIFIED` | Spesifikasi JMAP RFC 8620/8621, Stalwart API Audit, `ADR-003`, `ADR-011` |
 | **F5** | Keterbatasan Jaringan IPv6 Host | VPS Tencent Cloud (`vps-tencent3b`) yang dialokasikan tidak memiliki alamat IPv6 publik aktif (hanya antarmuka IPv4 statis `43.153.206.84`). Konsekuensi: Seluruh konfigurasi listener SMTP, reverse proxy Caddy, dan rekaman DNS A/AAAA hanya menggunakan IPv4. | `VERIFIED` | Inspeksi antarmuka jaringan Linux (`ip a`), `ADR-010` |
@@ -31,7 +31,7 @@ Setiap fakta infrastruktur ditandai dengan label ketat sesuai standar tata kelol
 
 ## 3. Matriks Evaluasi Alternatif Mail Server Engine
 
-| Kriteria / Metrik | Stalwart Mail Server (v1.0.3) | Mailu (Docker) | Mail-in-a-Box | Haraka SMTP |
+| Kriteria / Metrik | Stalwart Mail Server (v1.1.0) | Mailu (Docker) | Mail-in-a-Box | Haraka SMTP |
 | --- | :---: | :---: | :---: | :---: |
 | **Konsumsi RAM (Idle / Peak)** | ~150 MB / ~250 MB | >1.5 GB (8 kontainer) | ~800 MB - 1.2 GB | ~120 MB / ~200 MB |
 | **Bahasa & Runtime** | Rust murni (asinkron Tokio) | Python + Postfix + Dovecot | Shell + Postfix + Dovecot | Node.js (Event-driven) |
@@ -60,7 +60,7 @@ Setiap fakta infrastruktur ditandai dengan label ketat sesuai standar tata kelol
 ---
 
 ## 5. Ringkasan Rekomendasi Arsitektur
-1. Mengadopsi **Stalwart Mail Server v1.0.3 Community** sebagai engine email tunggal terpadu (`ADR-002`).
+1. Mengadopsi **Stalwart Mail Server v1.1.0 Community** sebagai engine email tunggal terpadu (`ADR-002`). **Upgrade caveat:** v1.1.0 (2026-11-09) adds passkey permissions to default roles; if upgrading from v1.0.x, set `STALWART_UPDATE_ROLE_PERMISSIONS=true` once during migration.
 2. Menggunakan **Virtual Alias Routing** untuk mailbox sementara guna menghindari batasan enterprise `F2` dan efisiensi memori (`ADR-003`).
 3. Menetapkan batasan MVP sebagai **Inbound-Only** untuk menyelaraskan diri dengan kondisi riil jaringan Tencent Cloud `F1` (`mvp-scope.md`).
 4. Mengoperasikan **DomiBox Core Purge Engine** secara independen untuk menegakkan kedaluwarsa TTL `F4` (`ADR-011`).

@@ -32,14 +32,14 @@ $$\text{Skor Tertimbang} = \sum (\text{Skor Kriteria} \times \text{Bobot})$$
 Mail Server Engine adalah tulang punggung sistem yang bertugas mendengarkan koneksi SMTP pada port 25, memvalidasi keamanan pengirim (SPF, DKIM, DMARC), dan menyajikan antarmuka akses pesan (JMAP/IMAP).
 
 ### 2.1 Kandidat yang Dievaluasi
-1. **Stalwart Mail Server (v1.0.3 Community):** Server email monolitik serba-ada modern yang ditulis dengan Rust murni.
+1. **Stalwart Mail Server (v1.1.0 Community):** Server email monolitik serba-ada modern yang ditulis dengan Rust murni.
 2. **Mailu:** Distribusi mail server berbasis Docker yang menggabungkan Postfix, Dovecot, Rspamd, dan Nginx.
 3. **Mail-in-a-Box:** Solusi paket mail server berbasis Ubuntu yang mengotomatisasi Postfix, Dovecot, SpamAssassin, dan NSD.
 4. **Haraka:** Server SMTP inbound performa tinggi berbasis Node.js yang sangat modular melalui plugin.
 
 ### 2.2 Matriks Perbandingan
 
-| Kriteria Evaluasi (Bobot) | Stalwart v1.0.3 | Mailu | Mail-in-a-Box | Haraka |
+| Kriteria Evaluasi (Bobot) | Stalwart v1.1.0 | Mailu | Mail-in-a-Box | Haraka |
 | --- | :---: | :---: | :---: | :---: |
 | **Jejak Memori (25%)** | **5** (~150-250 MB, Rust murni) | **1** (>1.5 GB, 8+ kontainer) | **2** (~800 MB - 1.2 GB) | **4** (~120-200 MB, Node.js) |
 | **Fitur Multi-Domain (20%)** | **4** (Bawaan, JMAP routing) | **5** (Multi-domain matang) | **3** (Ditujukan untuk single setup) | **3** (Butuh konfigurasi plugin kustom) |
@@ -51,7 +51,7 @@ Mail Server Engine adalah tulang punggung sistem yang bertugas mendengarkan kone
 ### 2.3 Analisis & Justifikasi Pemilihan
 - **Pemenang: Stalwart Mail Server (Skor: 4.60)**
 - **Justifikasi:** Stalwart merupakan satu-satunya server email modern terintegrasi penuh yang ditulis dalam bahasa Rust. Dalam satu binari kontainer ringan, Stalwart menyediakan SMTP listener, autentikasi SPF/DKIM/DMARC terintegrasi, dan antarmuka manajemen JMAP standar industri. Jejak memorinya (~150 MB) sangat ideal untuk batas RAM host 3.6 GiB. Mailu didiskualifikasi karena arsitektur multi-kontainer beratnya memakan lebih dari 1.5 GB RAM. Haraka sangat cepat sebagai SMTP receiver, namun Haraka bukan merupakan sistem penyimpanan pesan (*mail store*) sehingga memerlukan implementasi penyimpanan IMAP/JMAP terpisah secara manual.
-- **Catatan Batasan Lisensi:** Mengingat Stalwart v1.0.3 Community berlisensi AGPL-3.0 dan fitur *Masked Email* hanya tersedia pada varian Enterprise (`F2`), DomiBox mengadopsi model *virtual alias* terkelola serta isolasi jaringan via API HTTP/JMAP tanpa melakukan penautan kode sumber langsung (`ADR-002`, `ADR-003`).
+- **Catatan Batasan Lisensi:** Mengingat Stalwart v1.1.0 Community berlisensi AGPL-3.0 dan fitur *Masked Email* hanya tersedia pada varian Enterprise (`F2`), DomiBox mengadopsi model *virtual alias* terkelola serta isolasi jaringan via API HTTP/JMAP tanpa melakukan penautan kode sumber langsung (`ADR-002`, `ADR-003`). **Upgrade caveat:** v1.1.0 (2026-11-09) adds passkey permissions to default roles; if upgrading from v1.0.x, set `STALWART_UPDATE_ROLE_PERMISSIONS=true` once during migration.
 
 ---
 
@@ -175,7 +175,7 @@ graph TD
     subgraph Services["Layanan Komputasi Internal"]
         Backend["Core API & Ingestion Worker\n(Node.js 24 LTS + Fastify v4)"]
         Scheduler["Background Purge Worker\n(Fastify In-process / BullMQ)"]
-        Stalwart["Mail Engine\n(Stalwart v1.0.3 Community - Rust)"]
+        Stalwart["Mail Engine\n(Stalwart v1.1.0 Community - Rust)"]
     end
 
     subgraph Persistence["Penyimpanan Data Persisten"]
