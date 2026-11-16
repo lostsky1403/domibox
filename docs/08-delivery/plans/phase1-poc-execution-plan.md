@@ -66,26 +66,29 @@ Evidence under docs/08-delivery/poc-evidence/ (create during execution) or attac
 
 ## 13. Stalwart Management API Reference (Added 2026-11-16)
 
-**Stalwart v1.1.0** exposes a Management API for account/alias/mailbox operations. Standard JMAP `Mailbox/get` is read-only and returns folder listings; account creation/modification requires `x:Account/set` (Management API extension).
+**NOT VERIFIED — PoC must validate before reliance.**
 
-**Key endpoints:**
+The following claims about Stalwart v1.1.0 Management API are **unverified from official documentation**. The reference URL `https://stalw.art/docs/jmap/management` returns HTTP 404. PoC execution MUST validate these claims against actual server behavior.
+
+**Claimed endpoints (UNVERIFIED):**
 - `x:Account/set` — create/modify/delete mail accounts (requires admin auth)
 - `x:Alias/set` — create/modify/delete aliases (requires admin auth)
 - `Mailbox/set` — create/modify/delete mailbox folders (requires account auth)
 - `Email/set` — create/modify/delete email messages (requires account auth)
 
-**Authentication:**
+**Claimed authentication (UNVERIFIED):**
 - Management API: admin credentials via HTTP Basic Auth or Bearer token
 - Standard JMAP: account credentials via Bearer token
 
-**Permissions:**
+**Claimed permissions (UNVERIFIED):**
 - Admin can create/modify/delete any account or alias
 - Account owner can modify/delete own mailboxes and messages
 - No cross-account access without explicit delegation
 
-**PoC usage:**
-- Account creation: `POST /jmap` with `x:Account/set` method
-- Alias creation: `POST /jmap` with `x:Alias/set` method
-- Message retrieval: `POST /jmap` with `Email/get` method (standard JMAP)
+**PoC validation steps:**
+1. Deploy Stalwart v1.1.0 with default config
+2. Attempt `POST /jmap` with `x:Account/set` method using admin credentials
+3. Document actual endpoint names, auth methods, and permission model
+4. Update this section with verified facts or mark as BLOCKED if endpoints do not exist
 
-**Reference:** Stalwart JMAP Management API documentation (https://stalw.art/docs/jmap/management)
+**Reference:** Stalwart v1.1.0 release notes (https://github.com/stalwartlabs/stalwart/releases/tag/v1.1.0); JMAP overview (https://stalw.art/docs/http/jmap); specific Management API reference URL not found (404).
