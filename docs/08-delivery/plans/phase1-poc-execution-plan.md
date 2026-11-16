@@ -20,19 +20,19 @@ Existing VPS `vps-tencent3b` (Ubuntu 24.04 LTS, 2 vCPU, 3.6 GiB RAM, public IP 4
 5. Enable SMTP+submission, STARTTLS.
 6. External send via swaks; verify 250 OK + message stored + raw EML retrievable.
 7. Capture evidence: transcript, `ss -lntp`, logs, headers.
-Pass: external delivery accepted/stored, port 25 reachable, STARTTLS negotiates. Fail: port blocked upstream, TLS/auth refusal, or not stored. Rollback: stop container, close 25, destroy VPS.
+Pass: external delivery accepted/stored, port 25 reachable, STARTTLS negotiates. Fail: port blocked upstream, TLS/auth refusal, or not stored. Rollback: stop container, close 25.
 
 ## 4. Cloudflare DNS/MX Prerequisites
-1. Create zone; note zone ID + token.
+1. Use existing zone `sintaksis.biz.id`; note zone ID + scoped API token.
 2. Baseline: A mail.poc.example -> VPS IP; no MX initially.
 3. Conflict check (DBX-31): dig MX; if any route*.mx.cloudflare.net -> CONFLICT_CLOUDFLARE_ROUTING, halt, show subdomain guidance (mail.poc.example); else proceed.
 4. Add records: MX (priority 10), SPF TXT, DMARC TXT, DKIM TXT from Stalwart.
 5. Verify propagation.
 6. Document TTLs + record set.
-Pass: MX resolves to Stalwart; SPF/DKIM/DMARC present; conflict path exercised. Fail: unreconcilable Cloudflare routing or propagation failure. Rollback: delete records/zone, revoke token.
+Pass: MX resolves to Stalwart; SPF/DKIM/DMARC present; conflict path exercised. Fail: unreconcilable Cloudflare routing or propagation failure. Rollback: delete added DNS records, revoke token.
 
 ## 5. Stalwart Trial Design
-Docker Compose: Stalwart + PostgreSQL (metadata; blobs local volume for PoC). Admin via env; no public signup. Aliases via JMAP `x:Account/set` + `Mailbox/set` (Management API; standard `Mailbox/get` is read-only folder listing). Short TTL (60 min) to exercise expiry. TLS via ACME. Scenarios: (1) create alias via JMAP -> SMTP reachable; (2) inbound -> raw EML stored/parseable; (3) JMAP list -> count/headers; (4) delete alias -> 550; (5) 10 parallel alias creations -> no race/duplicate.
+Docker Compose: Stalwart + PostgreSQL (metadata; blobs local volume for PoC). Admin via env; no public signup. Account/alias provisioning via Stalwart Management API (UNVERIFIED — see §13); standard JMAP `Mailbox/get` is read-only folder listing, NOT account/alias creation. Short TTL (60 min) to exercise expiry. TLS via ACME. Scenarios: (1) create alias via Management API -> SMTP reachable; (2) inbound -> raw EML stored/parseable; (3) JMAP list -> count/headers; (4) delete alias -> 550; (5) 10 parallel alias creations -> no race/duplicate.
 
 ## 6. JMAP Checks
 JMAP-01 auth 200+session; JMAP-02 Mailbox/get list; JMAP-03 create alias via `x:Account/set` (Management API) -> new id; JMAP-04 Email/get raw RFC822; JMAP-05 delete -> gone; JMAP-06 state change token; JMAP-07 invalid id -> 400/404 typed. Pass: all seven expected; state tokens usable.
@@ -47,12 +47,12 @@ JMAP-01 auth 200+session; JMAP-02 Mailbox/get list; JMAP-03 create alias via `x:
 Method: baseline idle 5 min (RSS/CPU); load 10/50/100 msg/min 10 min each + concurrent JMAP reads; metrics docker stats, vmstat, pg_stat_activity, Stalwart metrics; record peak RSS, avg CPU, disk I/O, p50/p95 latency; vary VPS size if budget. Proposed pass (owner confirm): baseline idle RSS measured; under 100 msg/min RSS growth <50% of baseline (to be determined from measurements), CPU<80% sustained, p95<5s, no OOM; no crash in 30-min soak. Fail: OOM, CPU>90% sustained, p95>10s, crash. Output: benchmark report + min VPS tier recommendation.
 
 ## 9. Cleanup & Rollback
-Per-run: `docker compose -p domibox-poc down -v` (explicit project name); delete DNS records/zone; revoke token; close firewall ports verify ufw; remove volumes/images; archive logs/evidence before destroy. **Resource ownership check:** all cleanup commands MUST verify resource ownership (e.g., `docker volume ls | grep domibox-poc`) before deletion. Triggers: any fail, security incident, cost overrun. Procedure: stop services, revert DNS, component-scoped rollback (NO VPS destruction), document incident+lessons.
+Per-run reversible shutdown: `docker compose -p domibox-poc stop` (preserves volumes/data). Explicit data destruction (approval-gated): `docker compose -p domibox-poc down -v` ONLY after owner approval; deletes PoC-specific volumes. **Resource ownership check:** all cleanup commands MUST verify resource ownership (e.g., `docker volume ls | grep domibox-poc`) before deletion; NEVER touch volumes/networks/containers belonging to other services. Delete added DNS records; revoke token; close firewall ports verify ufw; archive logs/evidence. Triggers: any fail, security incident, cost overrun. Procedure: stop services, revert DNS, component-scoped rollback (NO VPS destruction), document incident+lessons.
 
 ## 10. Pass/Fail Criteria
 
 ### Phase-1A (Stalwart-only, PASS gates)
-PASS only if ALL: (1) port 25 reachable + delivery accepted/stored (DBX-25); (2) Cloudflare DNS/MX configured + conflict-detection logic verified where possible (DBX-31: clean-zone positive path exercised; conflict path NOT TESTABLE until a simulated route*.mx.cloudflare.net record exists); (3) Stalwart scenarios 1-5 pass; (4) JMAP-01..07 pass; (5) lifecycle 7.1 (DBX-29 temp mailbox) + 7.4 (DBX-31 conflict detection) pass; (6) benchmark meets pass (DBX-26); (7) security prereqs satisfied, no secret leak; (8) evidence captured. Any FAIL -> Phase-1A FAILS; document in risk register; decide remediate or descope.
+PASS only if ALL: (1) port 25 reachable + delivery accepted/stored (DBX-25); (2) Cloudflare DNS/MX configured + conflict-detection logic verified where possible (DBX-31: clean-zone positive path exercised via DNS inspection; **note:** DNS inspection does NOT prove DomiBox conflict-detection application logic works — application-level testing deferred until code exists); conflict path NOT TESTABLE until a simulated route*.mx.cloudflare.net record exists); (3) Stalwart scenarios 1-5 pass; (4) JMAP-01..07 pass; (5) lifecycle 7.1 (DBX-29 temp mailbox) + 7.4 (DBX-31 conflict detection) pass; (6) benchmark meets pass (DBX-26); (7) security prereqs satisfied, no secret leak; (8) evidence captured. Any FAIL -> Phase-1A FAILS; document in risk register; decide remediate or descope.
 
 ### Phase-1B (App-dependent, BLOCKED until DomiBox code exists)
 Lifecycle 7.2 (DBX-21 auto-purge scheduler) and 7.3 (DBX-30 temp->permanent conversion) require DomiBox application code that does not exist yet. These tests are **BLOCKED** and cannot be executed during Phase-1 PoC. They will be deferred to Phase-2 integration testing after the application layer is implemented.

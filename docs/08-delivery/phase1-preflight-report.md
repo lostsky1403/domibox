@@ -27,13 +27,16 @@ dylan.ns.cloudflare.com. dns.cloudflare.com. 2420070819 10000 2400 604800 1800
 ```
 
 ### DNS Baseline Conclusion
-- **MX:** NOT CONFIGURED (no mail routing)
-- **SPF/DKIM/DMARC:** NOT CONFIGURED
-- **A/AAAA:** NOT CONFIGURED (no web server)
-- **Nameservers:** Cloudflare (dylan + kristina.ns.cloudflare.com)
-- **Zone Status:** Zone exists and is served by Cloudflare (NS/SOA verified), but no records configured
+**Queries performed:** MX, A, TXT for `sintaksis.biz.id`; TXT for `_dmarc.sintaksis.biz.id`; NS for `sintaksis.biz.id`.
 
-**Implication for PoC:** DNS is a clean slate. No conflicts with existing mail infrastructure. Cloudflare Email Routing is NOT enabled (no `route*.mx.cloudflare.net` MX records). PoC can proceed with DNS configuration without conflict detection (DBX-31 conflict path NOT exercised — clean domain).
+**Results:**
+- **MX:** No MX records found for `sintaksis.biz.id` (inbound mail routing not configured)
+- **A:** No A records found for `sintaksis.biz.id` (apex domain not pointing to web server)
+- **TXT:** No TXT records found for `sintaksis.biz.id` (SPF not configured)
+- **DMARC:** No TXT record found for `_dmarc.sintaksis.biz.id` (DMARC policy not configured)
+- **Nameservers:** Cloudflare delegation confirmed (`dylan.ns.cloudflare.com`, `kristina.ns.cloudflare.com`)
+
+**Implication for PoC:** Queried record types for the specified domain names are absent. Cloudflare Email Routing is NOT enabled for `sintaksis.biz.id` (no `route*.mx.cloudflare.net` MX records found). PoC can proceed with DNS configuration. **Note:** DNS inspection of specific record types does NOT prove the entire zone is empty or that all possible subdomains/records are absent.
 
 ---
 
@@ -41,7 +44,7 @@ dylan.ns.cloudflare.com. dns.cloudflare.com. 2420070819 10000 2400 604800 1800
 
 **Target:** vps-tencent3b (43.153.206.84)  
 **Method:** SSH with BatchMode + ConnectTimeout=30s  
-**Timestamp:** 2026-11-16T15:42:30Z (UTC)
+**Timestamp:** 2026-11-16T15:42:30Z (from OMP execution environment)
 
 ### Connection Attempt
 ```bash
@@ -58,14 +61,16 @@ Exit code: 255
 ```
 
 ### Failure Analysis
-- **SSH daemon:** Unreachable (no banner exchange, connection timeout at TCP level)
+- **SSH daemon:** Unreachable from OMP execution environment (no banner exchange, connection timeout at TCP level)
+- **Context:** SSH timeout occurred from the OMP execution environment. This does NOT prove the VPS itself is stopped or globally unreachable.
 - **Possible causes:**
-  1. VPS powered off or suspended
-  2. Firewall blocking port 22 (Tencent Security Group or iptables)
-  3. SSH daemon not running
-  4. Network routing issue (VPS IP changed or unreachable from current network)
-  5. Tencent Cloud instance in stopped state
+  1. Firewall blocking port 22 from OMP environment (Tencent Security Group, iptables, or network ACL)
+  2. SSH daemon not running or misconfigured
+  3. Network routing issue between OMP environment and VPS IP
+  4. VPS powered off or suspended (requires additional evidence to confirm)
+  5. Tencent Cloud instance in stopped state (requires console verification)
 
+**Note:** Port connectivity from the OMP environment does NOT prove external reachability. Additional verification from different network locations is required before concluding the VPS is globally unreachable.
 ### VPS Preflight Conclusion
 **STATUS: NOT VERIFIED** — Cannot confirm:
 - CPU/RAM availability
@@ -141,7 +146,7 @@ The following changes are **approval-gated** and MUST NOT be executed without ex
 ## 5. Verdict: PARTIALLY READY
 
 ### What is VERIFIED
-- ✅ DNS baseline complete (no MX/A/TXT/DMARC records, Cloudflare delegation confirmed, 2026-11-16T15:42:00Z)
+- ✅ DNS baseline complete (queried MX/A/TXT/DMARC/NS for specified names; no records found for those queries, Cloudflare delegation confirmed, 2026-11-16T15:42:00Z)
 - ✅ Stalwart v1.1.0 pinned with upgrade caveat
 - ✅ Phase 1 PoC plan corrected (mission constraints satisfied)
 - ✅ §13 API claims marked NOT VERIFIED
