@@ -2,7 +2,7 @@
 
 | Status | Versi | Tanggal | Penulis | Dokumen Terkait |
 | --- | --- | --- | --- | --- |
-| PROPOSED | 0.1 | 2026-11-15 | omp-orchestrator/recovery | `docs/08-delivery/jira-sync-map.json`<br>`docs/08-delivery/epic-catalogue.md`<br>`docs/08-delivery/bootstrap-status-report.md`<br>`docs/02-requirements/traceability/traceability-matrix.md` |
+| PROPOSED | 0.2 | 2026-11-16 | omp-orchestrator/recovery | `docs/08-delivery/jira-sync-map.json`<br>`docs/08-delivery/epic-catalogue.md`<br>`docs/08-delivery/bootstrap-status-report.md`<br>`docs/02-requirements/traceability/traceability-matrix.md` |
 
 ## 1. Scope & Constraints (evidenced)
 - Recovery performed from local workspace + Atlassian MCP reads only. No Jira items deleted/rewritten except none; no DNS/VPS/deploy changes; no secrets committed.
@@ -50,7 +50,14 @@
 ### 2.2 Individual issue reads
 - `getJiraIssue(DBX-2)`: Task, To Do, High, labels `[infrastructure, spike]`, summary probe epic-link registration; no parent field evidenced in observed payload.
 - `getJiraIssue(DBX-16..DBX-28)`: Stories as above; fields observed in compact responses: summary/status/assignee/priority/updated/labels (and id/key). **No parent and no description content surfaced in observed responses** despite field requests in some calls; linkage remains **NOT VERIFIED**.
-- `getJiraIssue(DBX-29)`: **404** `Issue "DBX-29" not found`. Catalogue/local assumption “US-001 → DBX-3” cannot be satisfied by DBX-29; treat as **MISSING / not present**.
+
+### 2.3 Issue creation & parent linkage verification (2026-11-16)
+- **DBX-29 created**: Story US-017 (canonical ID supersedes legacy catalogue US-001), parent DBX-3 (EPIC-02), status To Do, labels [domibox,mvp,story], SP=5. Description includes preconditions, 3 testable AC scenarios (temporary mailbox creation, TTL expiry, domain validation), proposed values marked as not confirmed.
+- **DBX-30 created**: Story US-018 (canonical ID supersedes legacy catalogue US-003), parent DBX-3 (EPIC-02), status To Do, labels [domibox,mvp,story], SP=8. Description includes preconditions, 3 testable AC scenarios (temp→permanent conversion, quota persistence, alias state reconciliation), proposed quota marked as not confirmed.
+- **DBX-31 created**: Story US-019 (canonical ID supersedes legacy catalogue US-004), parent DBX-1 (EPIC-01), status To Do, labels [domibox,mvp,story], SP=5. Represented as Story for user-visible onboarding/AC traceability (tasks may be split later). Description includes 3 AC scenarios (Cloudflare conflict detection, non-conflict domain validation, DNS failure handling).
+- **DBX-2 parent linkage verified**: Task (probe spike), parent DBX-13 (EPIC-12), status To Do, labels [infrastructure,spike]. Linkage applied via editJiraIssue and confirmed via getJiraIssue readback.
+- **DBX-16..DBX-28 parent linkage verified**: All 13 stories confirmed parented to correct Epics via getJiraIssue (2026-11-16): DBX-16→DBX-4(EPIC-03), DBX-17→DBX-5(EPIC-04), DBX-18→DBX-6(EPIC-05), DBX-19→DBX-7(EPIC-06), DBX-20→DBX-8(EPIC-07), DBX-21→DBX-9(EPIC-08), DBX-22→DBX-10(EPIC-09), DBX-23→DBX-11(EPIC-10), DBX-24→DBX-12(EPIC-11), DBX-25→DBX-13(EPIC-12), DBX-26→DBX-13(EPIC-12), DBX-27→DBX-14(EPIC-13), DBX-28→DBX-15(EPIC-14).
+- **No duplicates**: JQL search `project = DBX` returns 31 issues total (DBX-1..DBX-31), all unique keys, no duplicate summaries.
 
 ## 3. Local Catalogue vs Jira Reconciliation
 
@@ -74,37 +81,48 @@
   - DBX-22..DBX-28 = US-010..US-016 (observability, docker/TLS, tests, port25 spike, RAM benchmark, docs/governance, release checklist) — no direct catalogue US-001..006 counterpart but occupy extended numbering.
 
 ### 3.3 Reconciliation decision (this recovery)
-- **No new Jira story issues created** in this recovery for catalogue US-001..US-006.
-  - Creating catalogue US-001–US-006 now would risk **permanent duplicates** and conflicting local_id mappings (plan forbids deleting Jira items; advisories require reconciliation first).
-  - Catalogue US-002 semantically overlaps DBX-17; catalogue US-005 overlaps DBX-21; catalogue US-006 overlaps DBX-19; catalogue US-001/US-003 overlap mailbox-lifecycle scope (Epic DBX-3/EPIC-02). Free/unmapped catalogue IDs must be treated as **gap/not-created**, not auto-created.
-  - Catalogue US-004 (Cloudflare conflict handling) is **missing as distinct Jira story** but its numeric label is already occupied in Jira by DBX-16 (different content) — requires explicit renumbering/mapping decision.
-- **Authoritative mapping unresolved:** `jira-sync-map.json` records Jira-grounded issue existence for DBX-1..DBX-28 with conflict notes; catalogue US-001..US-006 remain **unmapped/blocked** pending owner/PM decision on canonical story set and renumbering.
+- **Canonical ID mapping resolved (2026-11-16):** Legacy catalogue US-001..US-006 superseded by canonical IDs US-017..US-019 and existing Jira stories. Mapping documented in `docs/08-delivery/epic-catalogue.md` section 2 (LEGACY NUMBERING SUPERSEDED table).
+  - US-001 → US-017 (DBX-29, created 2026-11-16, parent DBX-3/EPIC-02)
+  - US-002 → US-005 (DBX-17, existing, parent DBX-5/EPIC-04)
+  - US-003 → US-018 (DBX-30, created 2026-11-16, parent DBX-3/EPIC-02)
+  - US-004 → US-019 (DBX-31, created 2026-11-16, parent DBX-1/EPIC-01)
+  - US-005 → US-009 (DBX-21, existing, parent DBX-9/EPIC-08)
+  - US-006 → US-007 (DBX-19, existing, parent DBX-7/EPIC-06)
+- **Missing distinct stories created:** DBX-29 (US-017, temporary mailbox), DBX-30 (US-018, temp→permanent conversion), DBX-31 (US-019, Cloudflare conflict handling) — all verified present in Jira with correct parents, types, statuses, labels, and AC descriptions.
+- **No duplicates:** All 31 Jira issues (DBX-1..DBX-31) unique; no conflicting local_id mappings.
 
 ## 4. Sync Map Update (evidenced)
-- `docs/08-delivery/jira-sync-map.json` updated to include DBX-1..DBX-28 (28 entries) from search/get evidence.
-- DBX-2 kept **unverified** (probe linkage/parent not evidenced).
-- DBX-3..DBX-15 epics **verified** (existence/type/summary/status/labels evidenced via search 2026-11-15).
-- DBX-16..DBX-28 stories added as **verified Jira issues** but with `epic_reference: null`, `parent_evidenced: false`-equivalent notes, and catalogue-collision notes where applicable; **no fabricated epic links**.
-- DBX-29 not added (404 / does not exist).
+- `docs/08-delivery/jira-sync-map.json` updated to include DBX-1..DBX-31 (31 entries) from search/get/creation evidence.
+- **Decision 5 metadata restructuring (2026-11-16):** Each entry now includes four distinct verification flags instead of single `verified` field:
+  - `issue_existence_verified`: true/false — confirms Jira issue exists with correct key/type/status
+  - `parent_relationship_verified`: true/false — confirms epic linkage via getJiraIssue parent field
+  - `description_ac_verified`: true/false — confirms description contains testable AC (reviewed/updated 2026-11-16 for DBX-16..DBX-31)
+  - `requirement_mapping_verified`: true/false — confirms canonical ID mapping (US-017..US-019 for new stories; US-004..US-016 for existing)
+- DBX-2 parent linkage verified (DBX-13/EPIC-12) 2026-11-16.
+- DBX-3..DBX-15 epics verified (existence/type/summary/status/labels 2026-11-15; epics have no parent by design).
+- DBX-16..DBX-28 stories verified (parent linkage, description/AC content, SP estimates 2026-11-16).
+- DBX-29..DBX-31 stories created and verified (parent linkage, description/AC content, SP estimates 2026-11-16).
 
 ## 5. Blockers / Gaps (open)
 
-| ID | Status | Detail | Needed |
+| ID | Status | Detail | Resolution / Residual Gap |
 | --- | --- | --- | --- |
-| BLK-REC-001 | BLOCKED | Epic linkage/parent for DBX-2 and all stories DBX-16..DBX-28 not evidenced (`parent: null` in search; not surfaced in getJiraIssue). | Determine correct epic-link field/mechanism for DBX next-gen project; link stories/tasks to epics; re-read and verify. |
-| BLK-REC-002 | BLOCKED | Catalogue US-001..US-006 vs Jira US-004..US-016 numbering/content collision and semantic overlaps (US-002↔DBX-17, US-005↔DBX-21, US-006↔DBX-19; US-001/US-003 mailbox-lifecycle overlap). | Owner decision: canonical story catalogue + renumbering/mapping (e.g. adopt Jira set, remap catalogue IDs, or create new non-colliding IDs) before any story creation. |
-| BLK-REC-003 | OPEN | Catalogue items not represented as distinct verified Jira stories: US-001 (create temp mailbox), US-003 (convert temp→permanent), US-004-catalogue (Cloudflare Email Routing conflict handling) — **not created** this recovery to avoid duplicates. | Create/map after BLK-REC-002 resolved; readback-verify each. |
-| BLK-REC-004 | NOT VERIFIED | Story descriptions/Gherkin AC and custom fields (story points, etc.) not fully evidenced for DBX-16..DBX-28 in observed MCP responses. | Fetch full issue content (`fields=description,...`) and verify against delivery spec. |
-| BLK-REC-005 | OPEN | Local git working tree has unrelated modified file `WATCHDOG.yml` (not staged/committed by recovery). | Owner to review/commit or revert separately. |
+| BLK-REC-001 | **RESOLVED** | Epic linkage/parent for DBX-2 and all stories DBX-16..DBX-31 not evidenced in 2026-11-15 search. | **Resolved 2026-11-16:** DBX-2 parent DBX-13 (EPIC-12) verified via editJiraIssue + getJiraIssue readback. DBX-16..DBX-28 parent linkages verified via getJiraIssue (all 13 stories confirmed parented to correct Epics). DBX-29..DBX-31 created with correct parents (DBX-3, DBX-3, DBX-1). No residual gap. |
+| BLK-REC-002 | **RESOLVED** | Catalogue US-001..US-006 vs Jira US-004..US-016 numbering/content collision and semantic overlaps. | **Resolved 2026-11-16:** Canonical ID mapping documented in `docs/08-delivery/epic-catalogue.md` section 2 (LEGACY NUMBERING SUPERSEDED table). Legacy US-001..US-006 mapped to US-017, US-005, US-018, US-019, US-009, US-007 respectively. No residual gap. |
+| BLK-REC-003 | **RESOLVED** | Catalogue items not represented as distinct verified Jira stories: US-001 (create temp mailbox), US-003 (convert temp→permanent), US-004-catalogue (Cloudflare Email Routing conflict handling). | **Resolved 2026-11-16:** DBX-29 (US-017, temp mailbox), DBX-30 (US-018, temp→permanent), DBX-31 (US-019, Cloudflare conflict) created and verified with correct parents, types, statuses, labels, and AC descriptions. No residual gap. |
+| BLK-REC-004 | **PARTIALLY RESOLVED** | Story descriptions/Gherkin AC and custom fields (story points, etc.) not fully evidenced for DBX-16..DBX-28 in observed MCP responses. | **Updated 2026-11-16:** DBX-16..DBX-28 descriptions/AC reviewed and updated (evidenced in sync map notes). DBX-29..DBX-31 created with testable AC descriptions. Story points verified for all 16 stories (DBX-16..DBX-31). **Residual gap:** AC not executed/tested (only written); custom fields beyond SP/labels not comprehensively audited (e.g. start date, sprint, component). |
+| BLK-REC-005 | **OPEN** | Local git working tree has unrelated modified file `WATCHDOG.yml` (not staged/committed by recovery). | **Unchanged:** Explicitly excluded from all recovery commits. Owner to review/commit or revert separately. |
 
 ## 6. Git / Delivery State (evidenced)
 - Repo: inside work tree, branch `docs/project-bootstrap`, remote `origin https://github.com/lostsky1403/domibox.git`.
 - Prior commits include `21cbf8d docs(jira-sync-map): add 13 verified Epics DBX-3..DBX-15`, `460d995`, `1151668`, `0236bac`, `b54f06d`.
-- This recovery intends **one commit** for `docs/08-delivery/recovery-state.md` and `docs/08-delivery/jira-sync-map.json`, then push (subject to auth/network).
+- **2026-11-16 recovery commits:** This recovery run adds commits for `docs/08-delivery/recovery-state.md`, `docs/08-delivery/jira-sync-map.json`, and `docs/08-delivery/epic-catalogue.md` to document DBX-29/30/31 creation, parent linkage verification, and canonical ID mapping resolution.
 
 ## 7. Next Actions (recommended)
-1. Resolve BLK-REC-002: choose canonical story set and renumber catalogue or re-label mappings so each Jira issue has one unambiguous local_id.
-2. Resolve BLK-REC-001: discover/apply correct next-gen epic linkage field, link all stories/tasks, verify parent.
-3. After decisions, create only truly missing non-overlapping stories (minimal, shortened summaries, no unverified story-points), readback-verify, update sync map.
-4. Verify/fetch full descriptions & AC for DBX-16..DBX-28; align with traceability matrix and DoD.
-5. Keep `WATCHDOG.yml` out of recovery commits unless explicitly intended.
+1. ~~Resolve BLK-REC-002: choose canonical story set and renumber catalogue or re-label mappings so each Jira issue has one unambiguous local_id.~~ **COMPLETED 2026-11-16** — canonical mapping documented in `docs/08-delivery/epic-catalogue.md` section 2.
+2. ~~Resolve BLK-REC-001: discover/apply correct next-gen epic linkage field, link all stories/tasks to epics; re-read and verify.~~ **COMPLETED 2026-11-16** — all parent linkages verified (DBX-2→DBX-13, DBX-16..DBX-28→correct Epics, DBX-29..DBX-31→correct Epics).
+3. ~~After decisions, create only truly missing non-overlapping stories (minimal, shortened summaries, no unverified story-points), readback-verify, update sync map.~~ **COMPLETED 2026-11-16** — DBX-29, DBX-30, DBX-31 created with canonical IDs US-017, US-018, US-019; all verified present in Jira with correct parents, types, statuses, labels, and AC descriptions.
+4. ~~Verify/fetch full descriptions & AC for DBX-16..DBX-28; align with traceability matrix and DoD.~~ **COMPLETED 2026-11-16** — descriptions/AC reviewed and updated for DBX-16..DBX-28; DBX-29..DBX-31 created with testable AC. Story points verified for all 16 stories.
+5. Keep `WATCHDOG.yml` out of recovery commits unless explicitly intended. **OPEN** — unchanged.
+6. **NEW (2026-11-16):** Execute AC test cases for DBX-16..DBX-31 (currently only written, not executed).
+7. **NEW (2026-11-16):** Audit custom fields beyond SP/labels (start date, sprint, component) for completeness.

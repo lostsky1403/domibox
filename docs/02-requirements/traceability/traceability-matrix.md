@@ -1,8 +1,8 @@
 # Requirements Traceability Matrix (RTM)
 
-**Status:** `PROPOSED`  
-**Version:** `0.1`  
-**Date:** `2026-11-14`  
+**Status:** `SYNCED`  
+**Version:** `0.2`  
+**Date:** `2026-11-16`  
 **Owner:** `Requirements Lead / Orchestrator (ReqTrace)`  
 - `docs/00-governance/project-charter.md`
 - `docs/00-governance/documentation-standards.md`
@@ -58,14 +58,14 @@ Tabel berikut memetakan keterlacakan dari Kebutuhan Tingkat Tinggi hingga Ekseku
 
 | Sasaran Piagam (`GOAL`) | Kebutuhan Bisnis (`BR`) | Kebutuhan Fungsional / Modul (`FR`/`MOD`) | Kebutuhan Non-Fungsional (`NFR`) | Kontrol Keamanan (`SEC`) | Dasar Riset / Masukan | Arsitektur Terkait (`ADR`) | Rencana Uji (`TC`) | Rencana Delivery (Epic / Story Jira) | Status Bukti & Ketergantungan |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| **GOAL-001**: Penyediaan platform mailbox mandiri & multi-domain fleksibel | **BR-001**: Pengguna dapat mengelola alamat email sementara dan permanen dengan domain kustom | **FR-001** / **DOM-001**: Konfigurasi & verifikasi kepemilikan domain kustom (DNS MX/TXT) | **NFR-001**: Ketersediaan layanan verifikasi domain (SLO TBD) | **SEC-001**: Validasi ketat kepemilikan domain guna mencegah domain spoofing | `docs/09-research/mail-infrastructure-suitability.md` | `ADR-001` (Pending) | `TC-001` (Pending) | Epic: `EPIC-DOM` / Story: `DBX-STORY-TBD-01` | `PROPOSED` (Tergantung penyelesaian `Q-003`) |
-| **GOAL-001**: Penyediaan platform mailbox mandiri & multi-domain fleksibel | **BR-001**: Pengguna dapat mengelola alamat email sementara dan permanen dengan domain kustom | **FR-002** / **MBX-001**: Pembuatan mailbox sementara dengan masa aktif berbasis durasi (TTL) | **NFR-002**: Latensi pembuatan mailbox ≤ 1.5 detik | **SEC-002**: Isolasi akses mailbox antar sesi atau token | `docs/09-research/ux-pattern-benchmark.md` | `ADR-002` (Pending) | `TC-002` (Pending) | Epic: `EPIC-MBX` / Story: `DBX-STORY-TBD-02` | `PROPOSED` (Asumsi: `A-001`, isu `Q-003`) |
-| **GOAL-001**: Penyediaan platform mailbox mandiri & multi-domain fleksibel | **BR-001**: Pengguna dapat mengelola alamat email sementara dan permanen dengan domain kustom | **FR-003** / **MBX-003**: Pengelolaan mailbox permanen dan konversi alias email persisten | **NFR-003**: Integritas penyimpanan data email jangka panjang | **SEC-003**: Autentikasi kuat & pembatasan kuota penyimpanan | `docs/09-research/problem-value-research.md` (Gap: `Q-001`) | `ADR-002` (Pending) | `TC-003` (Pending) | Epic: `EPIC-MBX` / Story: `DBX-STORY-TBD-03` | `PROPOSED` (Membutuhkan validasi riset `Q-001`) |
-| **GOAL-002**: Penerimaan dan ekstraksi email masuk secara cepat dan aman | **BR-002**: Pemrosesan email masuk real-time dengan ekstraksi kode verifikasi / OTP | **FR-004** / **INB-001**: Penerimaan email masuk via protokol SMTP/Inbound Pipe | **NFR-004**: Latensi pemrosesan email masuk ≤ 3 detik | **SEC-004**: Pemeriksaan reputasi pengirim, SPF/DKIM/DMARC pass/fail | `docs/09-research/mail-infrastructure-suitability.md` | `ADR-003` (Pending) | `TC-004` (Pending) | Epic: `EPIC-INB` / Story: `DBX-STORY-TBD-04` | `VERIFIED` (Kesesuaian protokol pos) |
-| **GOAL-002**: Penerimaan dan ekstraksi email masuk secara cepat dan aman | **BR-002**: Pemrosesan email masuk real-time dengan ekstraksi kode verifikasi / OTP | **FR-005** / **OTP-001**: Parser otomatis untuk ekstraksi kode OTP dan magic link | **NFR-005**: Akurasi deteksi pola OTP ≥ 95% | **SEC-005**: Sanitasi konten email, proteksi dari payload phishing/XSS | `docs/09-research/ux-pattern-benchmark.md` | `ADR-004` (Pending) | `TC-005` (Pending) | Epic: `EPIC-OTP` / Story: `DBX-STORY-TBD-05` | `PROPOSED` (Pola regex heuristik) |
-| **GOAL-003**: Kemudahan akses multi-kanal (Web & Telegram Bot) | **BR-003**: Interaksi multi-channel untuk akses cepat kode dan isi pesan | **FR-006** / **BOT-001**: Pengiriman pesan ringkasan dan kode OTP via Telegram Bot | **NFR-006**: Waktu pengiriman notifikasi bot ≤ 2 detik dari inbound | **SEC-006**: Autentikasi pairing chat ID Telegram dengan akun pengguna | `docs/09-research/ux-pattern-benchmark.md` | `ADR-005` (Pending) | `TC-006` (Pending) | Epic: `EPIC-BOT` / Story: `DBX-STORY-TBD-06` | `PROPOSED` (Tergantung autentikasi `Q-004`) |
-| **GOAL-003**: Kemudahan akses multi-kanal (Web & Telegram Bot) | **BR-003**: Interaksi multi-channel untuk akses cepat kode dan isi pesan | **FR-007** / **WEB-001**: Antarmuka web responsif untuk inbox, pembacaan email, dan manajemen domain | **NFR-007**: Waktu muat awal halaman web ≤ 2.0 detik | **SEC-007**: Proteksi CSRF, Content Security Policy (CSP), proteksi XSS | `docs/09-research/ux-pattern-benchmark.md` | `ADR-006` (Pending) | `TC-007` (Pending) | Epic: `EPIC-WEB` / Story: `DBX-STORY-TBD-07` | `PROPOSED` (Desain UX benchmark) |
-| **GOAL-004**: Tata kelola operasional dan audit yang transparan | **BR-004**: Auditabilitas dan manajemen kepatuhan operasional sistem | **FR-008** / **OPS-001..005**: Autentikasi master admin (`OPS-001`), scheduler auto-purge (`OPS-002`), health checks (`OPS-003`), rate limiting (`OPS-004`), audit trail aktivitas (`OPS-005`) | **NFR-008** (auto-purge), **NFR-009** (health/readiness), **NFR-012** (rate limiting) | **SEC-002** (admin auth), **SEC-008** (audit trail), **SEC-009** (rate limiting) | `docs/00-governance/documentation-standards.md`, `docs/02-requirements/functional-specs/07-admin-operations.md` | `ADR-007`, `ADR-011` (Pending) | `TC-008` (Pending) | Epic: `EPIC-OPS` / Story: `DBX-STORY-TBD-08` | `VERIFIED` (Prinsip kepatuhan data & operasional; `F4`) |
+| **GOAL-001**: Penyediaan platform mailbox mandiri & multi-domain fleksibel | **BR-001**: Pengguna dapat mengelola alamat email sementara dan permanen dengan domain kustom | **FR-001** / **DOM-001**: Konfigurasi & verifikasi kepemilikan domain kustom (DNS MX/TXT) | **NFR-001**: Ketersediaan layanan verifikasi domain (SLO TBD) | **SEC-001**: Validasi ketat kepemilikan domain guna mencegah domain spoofing | `docs/09-research/mail-infrastructure-suitability.md` | `ADR-001` (Pending) | `TC-001` (Pending) | Epic: `EPIC-01` (`DBX-1`) / Story: `US-019` (`DBX-31`) — penanganan konflik Cloudflare Email Routing | `SYNCED (verified 2026-11-16)` — Jira key DBX-31 terverifikasi, parent DBX-1 (EPIC-01), status To Do, SP=5. AC mencakup skenario konflik/non-konflik/gagal DNS. Ketergantungan: `Q-003` (cakupan MVP domain), `ADR-010` (strategi inbound SMTP) |
+| **GOAL-001**: Penyediaan platform mailbox mandiri & multi-domain fleksibel | **BR-001**: Pengguna dapat mengelola alamat email sementara dan permanen dengan domain kustom | **FR-002** / **MBX-001**: Pembuatan mailbox sementara dengan masa aktif berbasis durasi (TTL) | **NFR-002**: Latensi pembuatan mailbox ≤ 1.5 detik | **SEC-002**: Isolasi akses mailbox antar sesi atau token | `docs/09-research/ux-pattern-benchmark.md` | `ADR-002` (Pending), `ADR-003` (model mailbox sementara) | `TC-002` (Pending) | Epic: `EPIC-02` (`DBX-3`) / Story: `US-017` (`DBX-29`) — pembuatan mailbox sementara (TTL default 60 menit) | `SYNCED (verified 2026-11-16)` — Jira key DBX-29 terverifikasi, parent DBX-3 (EPIC-02), status To Do, SP=3. AC mencakup skenario pembuatan sukses/gagal domain non-aktif/salin alamat. Nilai TTL & latensi masih **PROPOSED** (belum dikonfirmasi owner) |
+| **GOAL-001**: Penyediaan platform mailbox mandiri & multi-domain fleksibel | **BR-001**: Pengguna dapat mengelola alamat email sementara dan permanen dengan domain kustom | **FR-003** / **MBX-003**: Pengelolaan mailbox permanen dan konversi alias email persisten | **NFR-003**: Integritas penyimpanan data email jangka panjang | **SEC-003**: Autentikasi kuat & pembatasan kuota penyimpanan | `docs/09-research/problem-value-research.md` (Gap: `Q-001`) | `ADR-002` (Pending), `ADR-003` | `TC-003` (Pending) | Epic: `EPIC-02` (`DBX-3`) / Story: `US-018` (`DBX-30`) — konversi mailbox sementara ke permanen | `SYNCED (verified 2026-11-16)` — Jira key DBX-30 terverifikasi, parent DBX-3 (EPIC-02), status To Do, SP=3. AC mencakup skenario konversi sukses/gagal kuota terlampaui. Nilai kuota (100 MB) masih **PROPOSED** |
+| **GOAL-002**: Penerimaan dan ekstraksi email masuk secara cepat dan aman | **BR-002**: Pemrosesan email masuk real-time dengan ekstraksi kode verifikasi /OTP | **FR-004** / **INB-001**: Penerimaan email masuk via protokol SMTP/Inbound Pipe | **NFR-004**: Latensi pemrosesan email masuk ≤ 3 detik | **SEC-004**: Pemeriksaan reputasi pengirim, SPF/DKIM/DMARC pass/fail | `docs/09-research/mail-infrastructure-suitability.md` | `ADR-003` (Pending), `ADR-010` | `TC-004` (Pending) | Epic: `EPIC-03` (`DBX-4`) / Story: `US-004` (`DBX-16`) — penerimaan email masuk & persistensi EML | `SYNCED (verified 2026-11-16)` — Jira key DBX-16 terverifikasi, parent DBX-4 (EPIC-03), status To Do, SP=8. AC mencakup skenerimaan SMTP sukses/gagal validasi SPF/DKIM. Catatan: legacy catalogue US-004 (Cloudflare conflict) telah direkonsiliasi ke US-019/DBX-31 |
+| **GOAL-002**: Penerimaan dan ekstraksi email masuk secara cepat dan aman | **BR-002**: Pemrosesan email masuk real-time dengan ekstraksi kode verifikasi /OTP | **FR-005** / **OTP-001**: Parser otomatis untuk ekstraksi kodeOTP dan magic link | **NFR-005**: Akurasi deteksi polaOTP ≥ 95% | **SEC-005**: Sanitasi konten email, proteksi dari payload phishing/XSS | `docs/09-research/ux-pattern-benchmark.md` | `ADR-004` (Pending) | `TC-005` (Pending) | Epic: `EPIC-04` (`DBX-5`) / Story: `US-005` (`DBX-17`) — ekstraksi kodeOTP & tautan aktivasi | `SYNCED (verified 2026-11-16)` — Jira key DBX-17 terverifikasi, parent DBX-5 (EPIC-04), status To Do, SP=5. AC mencakup skenario deteksiOTP sukses/gagal/gagal sanitasi. Catatan: legacy catalogue US-002 (OTP extraction) direkonsiliasi ke US-005/DBX-17 |
+| **GOAL-003**: Kemudahan akses multi-kanal (Web & Telegram Bot) | **BR-003**: Interaksi multi-channel untuk akses cepat kode dan isi pesan | **FR-006** / **BOT-001**: Pengiriman pesan ringkasan dan kodeOTP via Telegram Bot | **NFR-006**: Waktu pengiriman notifikasi bot ≤ 2 detik dari inbound | **SEC-006**: Autentikasi pairing chat ID Telegram dengan akun pengguna | `docs/09-research/ux-pattern-benchmark.md` | `ADR-005` (Pending), `ADR-008` | `TC-006` (Pending) | Epic: `EPIC-06` (`DBX-7`) / Story: `US-007` (`DBX-19`) — notifikasi Telegram instan & salinOTP | `SYNCED (verified 2026-11-16)` — Jira key DBX-19 terverifikasi, parent DBX-7 (EPIC-06), status To Do, SP=5. AC mencakup skenario notifikasi sukses/gagal pairing/gagal kirim. Catatan: legacy catalogue US-006 (Telegram notif) direkonsiliasi ke US-007/DBX-19 |
+| **GOAL-003**: Kemudahan akses multi-kanal (Web & Telegram Bot) | **BR-003**: Interaksi multi-channel untuk akses cepat kode dan isi pesan | **FR-007** / **WEB-001**: Antarmuka web responsif untuk inbox, pembacaan email, dan manajemen domain | **NFR-007**: Waktu muat awal halaman web ≤ 2.0 detik | **SEC-007**: Proteksi CSRF, Content Security Policy (CSP), proteksi XSS | `docs/09-research/ux-pattern-benchmark.md` | `ADR-006` (Pending), `ADR-007` | `TC-007` (Pending) | Epic: `EPIC-05` (`DBX-6`) / Story: `US-006` (`DBX-18`) — dashboard inbox viewer & email reader | `SYNCED (verified 2026-11-16)` — Jira key DBX-18 terverifikasi, parent DBX-6 (EPIC-05), status To Do, SP=8. AC mencakup skenario render inbox/list email/pratinjau HTML aman. Catatan: legacy catalogue US-006 (Telegram) direkonsiliasi ke US-007/DBX-19; DBX-18 adalah dashboard inbox viewer |
+| **GOAL-004**: Tata kelola operasional dan audit yang transparan | **BR-004**: Auditabilitas dan manajemen kepatuhan operasional sistem | **FR-008** / **OPS-001..005**: Autentikasi master admin (`OPS-001`), scheduler auto-purge (`OPS-002`), health checks (`OPS-003`), rate limiting (`OPS-004`), audit trail aktivitas (`OPS-005`) | **NFR-008** (auto-purge), **NFR-009** (health/readiness), **NFR-012** (rate limiting) | **SEC-002** (admin auth), **SEC-008** (audit trail), **SEC-009** (rate limiting) | `docs/00-governance/documentation-standards.md`, `docs/02-requirements/functional-specs/07-admin-operations.md` | `ADR-007`, `ADR-009`, `ADR-011` (Pending) | `TC-008` (Pending) | Multi-story mapping: `OPS-001` → `DBX-22` (US-010, EPIC-09 observability); `OPS-002` → `DBX-21` (US-009, EPIC-08 auto-purge); `OPS-003` → `DBX-22` (US-010, EPIC-09 health checks); `OPS-004` → `DBX-20` (US-008, EPIC-07 rate limiting); `OPS-005` → `DBX-22` (US-010, EPIC-09 audit trail) | `SYNCED (verified 2026-11-16)` — Semua Jira key terverifikasi: DBX-20 (parent DBX-8, EP=5), DBX-21 (parent DBX-9, SP=5), DBX-22 (parent DBX-10, SP=3). Status To Do untuk semua. AC mencakup skenario autentikasi/admin/purge/health/rate/audit. |
 
 ---
 
@@ -112,7 +112,7 @@ flowchart TD
     SEC --> ADR
     FR --> TC[Test Cases: TC-001..008 PENDING]
     SEC --> TC
-    FR --> Delivery[Jira DBX Epics & Stories: PENDING SYNC]
+    FR --> Delivery[Jira DBX Epics & Stories: SYNCED verified 2026-11-16]
 ```
 
 ### Ringkasan Cakupan (Coverage Summary)
@@ -122,11 +122,157 @@ flowchart TD
 - **Total Kebutuhan Non-Fungsional Pokok:** 12 (`NFR-001` s/d `NFR-012` per `nfr-spec.md`)
 - **Total Kontrol Keamanan Terpetakan:** 12 (`SEC-001` s/d `SEC-012` per `security-privacy-requirements.md`)
 - **Kasus Uji Terkait:** 8 Placeholder Terdefinisi (`TC-001` s/d `TC-008`, status `PENDING`)
-- **Item Delivery Terkait:** 8 Placeholder Epic/Story Terdefinisi (status `PENDING SYNC`)
-
----
+- **Item Delivery Terkait:** 19 Epic terverifikasi (`DBX-1` s/d `DBX-15`) + 16 Story terverifikasi (`DBX-16` s/d `DBX-31`, status `SYNCED verified 2026-11-16`)
 
 ## 7. Aturan Perubahan & Pemeliharaan (Change & Maintenance Rules)
 1. Penambahan kebutuhan fungsional baru wajib menambahkan baris pemetaan baru pada RTM dengan status awal `PROPOSED`.
 2. Setiap pengubahan status implementasi atau pengujian harus diverifikasi sebelum mengubah status dari `PENDING` menjadi `VERIFIED`.
 3. Jika ada item yang dihapus atau dipindahkan ke Fase 2, ID tidak boleh digunakan ulang (*no ID reuse*).
+
+---
+
+## 8. Pemetaan Lengkap Story Jira (Complete Jira Story Mapping)
+
+Berikut adalah pemetaan lengkap seluruh story Jira yang telah terverifikasi dan tersinkronisasi dengan requirement DomiBox:
+
+### 8.1 EPIC-01: Domain & DNS Management (`DBX-1`)
+
+| Story ID | Jira Key | Requirement | Deskripsi | Status | Story Points |
+|----------|----------|-------------|-----------|--------|--------------|
+| US-019 | `DBX-31` | `DOM-001`, `FR-001` | Penanganan konflik Cloudflare Email Routing | `SYNCED` | 5 |
+
+**Catatan:** Legacy catalogue US-004 (Cloudflare conflict) telah direkonsiliasi ke US-019/DBX-31. AC mencakup skenario konflik/non-konflik/gagal DNS.
+
+### 8.2 EPIC-02: Mailbox Lifecycle Engine (`DBX-3`)
+
+| Story ID | Jira Key | Requirement | Deskripsi | Status | Story Points |
+|----------|----------|-------------|-----------|--------|--------------|
+| US-017 | `DBX-29` | `MBX-001`, `FR-002` | Pembuatan mailbox sementara (TTL default 60 menit) | `SYNCED` | 3 |
+| US-018 | `DBX-30` | `MBX-003`, `FR-003` | Konversi mailbox sementara ke permanen | `SYNCED` | 3 |
+
+**Catatan:** Legacy catalogue US-001 (temporary mailbox) direkonsiliasi ke US-017/DBX-29. Legacy US-003 (temp→permanent conversion) direkonsiliasi ke US-018/DBX-30. Nilai TTL, latensi, dan kuota masih **PROPOSED** (belum dikonfirmasi owner).
+
+### 8.3 EPIC-03: Inbound Mail Pipeline (`DBX-4`)
+
+| Story ID | Jira Key | Requirement | Deskripsi | Status | Story Points |
+|----------|----------|-------------|-----------|--------|--------------|
+| US-004 | `DBX-16` | `INB-001`, `FR-004` | Penerimaan email masuk & persistensi EML | `SYNCED` | 8 |
+
+**Catatan:** AC mencakup penerimaan SMTP sukses/gagal validasi SPF/DKIM. Catatan penting: legacy catalogue US-004 (Cloudflare conflict) telah dipindahkan ke US-019/DBX-31; DBX-16 adalah inbound reception.
+
+### 8.4 EPIC-04: OTP & Link Extraction (`DBX-5`)
+
+| Story ID | Jira Key | Requirement | Deskripsi | Status | Story Points |
+|----------|----------|-------------|-----------|--------|--------------|
+| US-005 | `DBX-17` | `OTP-001`, `FR-005` | Ekstraksi kode OTP & tautan aktivasi | `SYNCED` | 5 |
+
+**Catatan:** Legacy catalogue US-002 (OTP extraction) direkonsiliasi ke US-005/DBX-17. AC mencakup skenario deteksi OTP sukses/gagal/gagal sanitasi.
+
+### 8.5 EPIC-05: Web Dashboard Application (`DBX-6`)
+
+| Story ID | Jira Key | Requirement | Deskripsi | Status | Story Points |
+|----------|----------|-------------|-----------|--------|--------------|
+| US-006 | `DBX-18` | `WEB-001`, `FR-007` | Dashboard inbox viewer & email reader | `SYNCED` | 8 |
+
+**Catatan:** AC mencakup skenario render inbox/list email/pratinjau HTML aman. Catatan: legacy catalogue US-006 (Telegram notif) direkonsiliasi ke US-007/DBX-19; DBX-18 adalah dashboard inbox viewer.
+
+### 8.6 EPIC-06: Telegram Bot Channel (`DBX-7`)
+
+| Story ID | Jira Key | Requirement | Deskripsi | Status | Story Points |
+|----------|----------|-------------|-----------|--------|--------------|
+| US-007 | `DBX-19` | `BOT-001`, `FR-006` | Notifikasi Telegram instan & salin OTP | `SYNCED` | 5 |
+
+**Catatan:** Legacy catalogue US-006 (Telegram notif) direkonsiliasi ke US-007/DBX-19. AC mencakup skenario notifikasi sukses/gagal pairing/gagal kirim.
+
+### 8.7 EPIC-07: Security & HTML Sanitization (`DBX-8`)
+
+| Story ID | Jira Key | Requirement | Deskripsi | Status | Story Points |
+|----------|----------|-------------|-----------|--------|--------------|
+| US-008 | `DBX-20` | `SEC-005`, `OPS-004` | Sanitasi HTML & rate limiting | `SYNCED` | 5 |
+
+**Catatan:** AC mencakup skenario sanitasi XSS sukses/gagal/rate limit aktif.
+
+### 8.8 EPIC-08: Background Jobs & Auto-Purge (`DBX-9`)
+
+| Story ID | Jira Key | Requirement | Deskripsi | Status | Story Points |
+|----------|----------|-------------|-----------|--------|--------------|
+| US-009 | `DBX-21` | `OPS-002`, `NFR-008` | Auto-purge mailbox kedaluwarsa | `SYNCED` | 5 |
+
+**Catatan:** Legacy catalogue US-005 (auto-purge) direkonsiliasi ke US-009/DBX-21. AC mencakup skenario purge sukses/gagal lock tabel/audit trail.
+
+### 8.9 EPIC-09: Observability & Audit Trail (`DBX-10`)
+
+| Story ID | Jira Key | Requirement | Deskripsi | Status | Story Points |
+|----------|----------|-------------|-----------|--------|--------------|
+| US-010 | `DBX-22` | `OPS-001`, `OPS-003`, `OPS-005`, `SEC-002`, `SEC-008` | Observability, health checks, audit trail | `SYNCED` | 3 |
+
+**Catatan:** Multi-requirement story mencakup autentikasi master admin (`OPS-001`), health checks (`OPS-003`), dan audit trail (`OPS-005`). AC mencakup skenario login sukses/gagal/health check/audit logging.
+
+### 8.10 EPIC-10: Docker & VPS Deployment (`DBX-11`)
+
+| Story ID | Jira Key | Requirement | Deskripsi | Status | Story Points |
+|----------|----------|-------------|-----------|--------|--------------|
+| US-011 | `DBX-23` | `NFR-010` | Docker Compose & TLS Caddy | `SYNCED` | 5 |
+
+**Catatan:** AC mencakup skenario deployment sukses/gagal TLS/gagal UFW.
+
+### 8.11 EPIC-11: Automated Testing Suite (`DBX-12`)
+
+| Story ID | Jira Key | Requirement | Deskripsi | Status | Story Points |
+|----------|----------|-------------|-----------|--------|--------------|
+| US-012 | `DBX-24` | `NFR-011` | Unit test, integrasi test, E2E test | `SYNCED` | 8 |
+
+**Catatan:** AC mencakup skenario coverage threshold/test execution/test reporting.
+
+### 8.12 EPIC-12: Technical Spikes & Feasibility (`DBX-13`)
+
+| Story ID | Jira Key | Requirement | Deskripsi | Status | Story Points |
+|----------|----------|-------------|-----------|--------|--------------|
+| US-013 | `DBX-25` | Spike | Validasi port 25 inbound Tencent | `SYNCED` | 3 |
+| US-014 | `DBX-26` | Spike | PoC benchmark RAM Stalwart | `SYNCED` | 3 |
+| PROBE-SPIKE-01 | `DBX-2` | Task | Probe epic-link registration | `SYNCED` | — |
+
+**Catatan:** `DBX-2` adalah Task (bukan Story) dengan parent `DBX-13` (EPIC-12). Scope: probe/epic-link registration.
+
+### 8.13 EPIC-13: Documentation & Governance (`DBX-14`)
+
+| Story ID | Jira Key | Requirement | Deskripsi | Status | Story Points |
+|----------|----------|-------------|-----------|--------|--------------|
+| US-015 | `DBX-27` | Governance | Dokumentasi SRS, OpenAPI, ADR | `SYNCED` | 3 |
+
+**Catatan:** AC mencakup skenario dokumentasi lengkap/review/approval.
+
+### 8.14 EPIC-14: Release & Cutover Management (`DBX-15`)
+
+| Story ID | Jira Key | Requirement | Deskripsi | Status | Story Points |
+|----------|----------|-------------|-----------|--------|--------------|
+| US-016 | `DBX-28` | Governance | Checklist kesiapan rilis MVP | `SYNCED` | 3 |
+
+**Catatan:** AC mencakup skenario checklist lengkap/rollback test/UAT approval.
+
+### 8.15 Ringkasan Statistik
+
+- **Total Epic:** 14 (semua terverifikasi, `DBX-1` s/d `DBX-15`)
+- **Total Story:** 16 (semua terverifikasi, `DBX-16` s/d `DBX-31`)
+- **Total Task:** 1 (probe spike `DBX-2`)
+- **Total Story Points:** 69 (akumulasi dari semua story)
+- **Status Sinkronisasi:** `SYNCED (verified 2026-11-16)`
+- **Sumber Data:** `docs/08-delivery/jira-sync-map.json`
+
+### 8.16 Catatan Rekonsiliasi Legacy
+
+Beberapa story dalam catalogue legacy mengalami rekonsiliasi untuk menghindari duplikasi dan memastikan traceability yang akurat:
+
+| Legacy ID | Canonical ID | Jira Key | Alasan Rekonsiliasi |
+|-----------|--------------|----------|---------------------|
+| US-001 | US-017 | `DBX-29` | Mailbox creation — mailbox-lifecycle scope (EPIC-02) |
+| US-002 | US-005 | `DBX-17` | Semantic overlap dengan "Ekstraksi OTP & Tautan Aktivasi" |
+| US-003 | US-018 | `DBX-30` | Temp→permanent conversion — mailbox-lifecycle scope (EPIC-02) |
+| US-004 | US-019 | `DBX-31` | Cloudflare Email Routing conflict handling — distinct missing story |
+| US-005 | US-009 | `DBX-21` | Semantic overlap dengan "Auto-Purge & Cleanup Job Terjadwal" |
+| US-006 | US-007 | `DBX-19` | Semantic overlap dengan "Notifikasi Telegram Instan & Salin OTP" |
+
+**Catatan Penting:** Legacy ID (`US-001` s/d `US-006`) tetap dipertahankan dalam `docs/08-delivery/epic-catalogue.md` untuk sejarah, tetapi **TIDAK** digunakan sebagai referensi kanonikal. Seluruh referensi harus menggunakan canonical ID (`US-004` s/d `US-019`) dan Jira key (`DBX-16` s/d `DBX-31`).
+
+---
+

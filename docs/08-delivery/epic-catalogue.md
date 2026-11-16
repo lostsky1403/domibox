@@ -27,6 +27,20 @@
 
 ---
 
+## 2. Katalog User Story MVP Pokok (Format Gherkin AC) — LEGACY NUMBERING SUPERSEDED
+
+> **LEGACY NUMBERING SUPERSEDED** — `US-001`..`US-006` below are historical catalogue labels only.
+> Canonical Jira-side IDs: `US-001 → US-017` (DBX-29), `US-002 → US-005` (DBX-17), `US-003 → US-018` (DBX-30), `US-004 → US-019` (DBX-31), `US-005 → US-009` (DBX-21), `US-006 → US-007` (DBX-19). Original text below preserved verbatim; do not treat these labels as canonical.
+>
+> | Legacy ID | Status | Canonical ID | Jira key | Notes |
+> | --- | --- | --- | --- | --- |
+> | US-001 | SUPERSEDED | US-017 | DBX-29 | Mailbox creation — mailbox-lifecycle scope (EPIC-02). Created 2026-11-16, parent Epic DBX-3 (EPIC-02) |
+> | US-002 | SUPERSEDED | US-005 | DBX-17 | Semantic overlap with Jira "US-005 — Ekstraksi OTP & Tautan Aktivasi" |
+> | US-003 | SUPERSEDED | US-018 | DBX-30 | Temp→permanent conversion — mailbox-lifecycle scope (EPIC-02). Created 2026-11-16, parent Epic DBX-3 (EPIC-02) |
+> | US-004 | SUPERSEDED | US-019 | DBX-31 | Cloudflare Email Routing conflict handling — distinct missing story. Created 2026-11-16, parent Epic DBX-1 (EPIC-01). Kept as Story for user-visible onboarding/AC traceability |
+> | US-005 | SUPERSEDED | US-009 | DBX-21 | Semantic overlap with Jira "US-009 — Auto-Purge & Cleanup Job Terjadwal" |
+> | US-006 | SUPERSEDED | US-007 | DBX-19 | Semantic overlap with Jira "US-007 — Notifikasi Telegram Instan & Salin OTP" |
+
 ## 2. Katalog User Story MVP Pokok (Format Gherkin AC)
 
 ### US-001: Pembuatan Mailbox Sementara Cepat
