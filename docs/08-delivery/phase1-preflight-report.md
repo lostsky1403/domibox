@@ -252,4 +252,4 @@ Exit code: 255
 
 **Report Author:** omp-orchestrator  
 **Report Date:** 2026-11-16  
-**Status:** PARTIALLY READY (DNS verified; VPS preflight BLOCKED)
+**Status:** PARTIALLY READY (DNS verified; VPS readiness NOT VERIFIED — SSH timeout from OMP execution environment only)
