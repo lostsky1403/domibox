@@ -10,22 +10,21 @@
 
 | ID Epic | Kunci Jira Usulan | Nama Epic | Deskripsi Singkat | Prioritas |
 | :--- | :--- | :--- | :--- | :---: |
-| `EPIC-01` | `DBX-EPIC-01` | Domain & DNS Management | Registrasi domain kustom, validasi MX/TXT Cloudflare, isolasi subdomain. | High (P1) |
-| `EPIC-02` | `DBX-EPIC-02` | Mailbox Lifecycle Engine | Pembuatan mailbox acak/kustom, TTL expiry, perpanjangan, konversi permanen. | High (P1) |
-| `EPIC-03` | `DBX-EPIC-03` | Inbound Mail Pipeline | Penerimaan SMTP port 25, penguraian MIME RFC822, penyimpanan raw EML. | High (P1) |
-| `EPIC-04` | `DBX-EPIC-04` | OTP & Link Extraction | Deteksi regex cerdas kode verifikasi/OTP dan tautan aktivasi instan. | High (P1) |
-| `EPIC-05` | `DBX-EPIC-05` | Web Dashboard Application | Single Page App (React + Vite + shadcn) untuk inbox, pratinjau, dan kontrol. | High (P1) |
-| `EPIC-06` | `DBX-EPIC-06` | Telegram Bot Channel | Bot interaktif (grammY) untuk notifikasi instan, salin OTP, dan manajemen cepat.| High (P1) |
-| `EPIC-07` | `DBX-EPIC-07` | Security & HTML Sanitization | Sanitasi DOMPurify, isolasi iframe, proteksi WebAuthn/TOTP, rate limiting. | High (P1) |
-| `EPIC-08` | `DBX-EPIC-08` | Background Jobs & Auto-Purge | Penjadwal TTL expiry, pembersihan data kedaluwarsa, rekonsiliasi state alias. | High (P1) |
-| `EPIC-09` | `DBX-EPIC-09` | Observability & Audit Trail | Logging terstruktur pino, metrik sistem, jejak audit aktivitas pemilik. | Medium (P2)|
-| `EPIC-10` | `DBX-EPIC-10` | Docker & VPS Deployment | Docker Compose, reverse proxy TLS Caddy, konfigurasi UFW port 25. | High (P1) |
-| `EPIC-11` | `DBX-EPIC-11` | Automated Testing Suite | Unit test Vitest, integrasi Supertest, E2E Playwright. | Medium (P2)|
-| `EPIC-12` | `DBX-EPIC-12` | Technical Spikes & Feasibility | Validasi port 25 inbound Tencent, PoC benchmark RAM Stalwart pada VPS. | High (P1) |
-| `EPIC-13` | `DBX-EPIC-13` | Documentation & Governance | Penataan spesifikasi SRS, OpenAPI, ADR, panduan kontribusi repositori. | High (P1) |
-| `EPIC-14` | `DBX-EPIC-14` | Release & Cutover Management | Checklist kesiapan rilis MVP, skenario rollback, uji penerimaan pemilik. | Medium (P2)|
+| `EPIC-01` | `DBX-1` | Domain & DNS Management | Registrasi domain kustom, validasi MX/TXT Cloudflare, isolasi subdomain. | High (P1) |
+| `EPIC-02` | `DBX-3` | Mailbox Lifecycle Engine | Pembuatan mailbox acak/kustom, TTL expiry, perpanjangan, konversi permanen. | High (P1) |
+| `EPIC-03` | `DBX-4` | Inbound Mail Pipeline | Penerimaan SMTP port 25, penguraian MIME RFC822, penyimpanan raw EML. | High (P1) |
+| `EPIC-04` | `DBX-5` | OTP & Link Extraction | Deteksi regex cerdas kode verifikasi/OTP dan tautan aktivasi instan. | High (P1) |
+| `EPIC-05` | `DBX-6` | Web Dashboard Application | Single Page App (React + Vite + shadcn) untuk inbox, pratinjau, dan kontrol. | High (P1) |
+| `EPIC-06` | `DBX-7` | Telegram Bot Channel | Bot interaktif (grammY) untuk notifikasi instan, salin OTP, dan manajemen cepat. | High (P1) |
+| `EPIC-07` | `DBX-8` | Security & HTML Sanitization | Sanitasi DOMPurify, isolasi iframe, proteksi WebAuthn/TOTP, rate limiting. | High (P1) |
+| `EPIC-08` | `DBX-9` | Background Jobs & Auto-Purge | Penjadwal TTL expiry, pembersihan data kedaluwarsa, rekonsiliasi state alias. | High (P1) |
+| `EPIC-09` | `DBX-10` | Observability & Audit Trail | Logging terstruktur pino, metrik sistem, jejak audit aktivitas pemilik. | Medium (P2) |
+| `EPIC-10` | `DBX-11` | Docker & VPS Deployment | Docker Compose, reverse proxy TLS Caddy, konfigurasi UFW port 25. | High (P1) |
+| `EPIC-11` | `DBX-12` | Automated Testing Suite | Unit test Vitest, integrasi Supertest, E2E Playwright. | Medium (P2) |
+| `EPIC-12` | `DBX-13` | Technical Spikes & Feasibility | Validasi port 25 inbound Tencent, PoC benchmark RAM Stalwart pada VPS. | High (P1) |
+| `EPIC-13` | `DBX-14` | Documentation & Governance | Penataan spesifikasi SRS, OpenAPI, ADR, panduan kontribusi repositori. | High (P1) |
+| `EPIC-14` | `DBX-15` | Release & Cutover Management | Checklist kesiapan rilis MVP, skenario rollback, uji penerimaan pemilik. | Medium (P2) |
 
----
 
 ## 2. Katalog User Story MVP Pokok (Format Gherkin AC) — LEGACY NUMBERING SUPERSEDED
 
@@ -41,7 +40,7 @@
 > | US-005 | SUPERSEDED | US-009 | DBX-21 | Semantic overlap with Jira "US-009 — Auto-Purge & Cleanup Job Terjadwal" |
 > | US-006 | SUPERSEDED | US-007 | DBX-19 | Semantic overlap with Jira "US-007 — Notifikasi Telegram Instan & Salin OTP" |
 
-## 2. Katalog User Story MVP Pokok (Format Gherkin AC)
+## 3. Katalog User Story MVP Pokok (Format Gherkin AC)
 
 ### US-001: Pembuatan Mailbox Sementara Cepat
 - **Sebagai** Pemilik Platform DomiBox,

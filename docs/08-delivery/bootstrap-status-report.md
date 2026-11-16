@@ -10,7 +10,7 @@
 
 - **Cakupan dokumentasi bootstrap:** Fase 0–7 selesai (audit/reconcile, riset kanonikal F1–F6, governance/standards, product core, UX/IA, requirements/traceability, arsitektur/ADR, technical/security-privacy/quality/operations/delivery docs inti).
 - **Fase 8 (scaffold & verifikasi akhir):** selesai pada level dokumentasi bootstrap ini (root/.github scaffold diverifikasi/dilengkapi, struktur/link/metadata/gap diverifikasi, laporan status disiapkan). **Belum** setara dengan kesiapan implementasi/rilis.
-- **Klaim yang tidak dibuat:** tidak ada klaim implementasi aplikasi selesai, tidak ada klaim sinkronisasi Jira/GitHub eksternal berhasil, tidak ada klaim approval/baseline selain status dokumen yang tercatat.
+- **Batas klaim:** sinkronisasi perencanaan Jira terverifikasi seperti dirinci pada §6; tidak ada klaim implementasi aplikasi atau pengujian selesai, approval owner, maupun sinkronisasi GitHub/PR yang berhasil.
 
 ## 2. Scaffold Repository (Root & .github)
 
@@ -22,7 +22,7 @@
 
 - **Link/path markdown (docs):** pemindaian referensi relatif markdown/yaml pada `docs/**` = **0 broken links** (setelah rekonsiliasi spesifikasi teknis 04-technical dan RTM/BRD traceability).
 - **Metadata:** sebagian besar dokumen memiliki metadata (`Status/Version/Date/Owner` atau tabel metadata). Pengecualian terdeteksi (template/backup tanpa tabel status eksplisit): `docs/TEMPLATE_PRD.md`, `docs/00-governance/TEMPLATE_PRD.md`, `docs/templates/TEMPLATE_PRD.backup.md` (diterima sebagai artefak template/historis; bukan dokumen operasional kanonikal).
-- **Marker gap (TODO/TBD/PLACEHOLDER):** masih ditemukan pada sejumlah dokumen (template, charter, RTM placeholder TC/ADR/Jira sync, dan scaffold README) — ini adalah gap terbuka yang disengaja/tercatat, bukan bukti penyelesaian implementasi.
+- **Marker gap (TODO/TBD/PLACEHOLDER):** masih ditemukan pada sejumlah dokumen (template, charter, RTM untuk status ADR/TC yang masih pending, serta scaffold README). Pemetaan Jira di RTM telah direkonsiliasi; status pending pada ADR/TC tetap merupakan pekerjaan terbuka, bukan bukti implementasi atau pengujian selesai.
 - **Struktur docs:** direktori utama 00–10 + research/ux/support ada; beberapa area masih scaffold/parsial (`docs/05-security/` dan `docs/05-security-privacy/` berdampingan, `docs/10-release/` scaffold, `docs/10-ux/` direktori scaffold tanpa artefak UX rinci tambahan, `docs/08-delivery/milestones/` kosong).
 
 ## 4. Rekonsiliasi Kunci yang Telah Dilakukan
@@ -35,21 +35,27 @@
 | Area | Status | Catatan / Next Action |
 | --- | --- | --- |
 | Implementasi aplikasi & infrastruktur | `OPEN` | Belum ada implementasi kode/deploy tervalidasi; butuh eksekusi pengembangan sesuai spesifikasi/ADR (Phase delivery teknis). |
-| ADR/Test Case/Jira ID final di RTM | `PENDING` | Banyak `ADR-xxx (Pending)`, `TC-00x (Pending)`, `DBX-STORY-TBD-*` — finalisasi saat artefak/issue dibuat dan diverifikasi. |
-| Security/privacy & release artefak rinci | `GAP` | `docs/05-security-privacy/` dan `docs/10-release/` masih scaffold; butuh threat model/privacy-detail/release plan & checklist berbasis bukti. |
-| Delivery milestones & Jira sync map | `GAP` | `docs/08-delivery/milestones/` kosong; `docs/08-delivery/jira-sync-map.json` belum ada — buat saat sinkronisasi Jira nyata tersedia. |
-| Duplikasi/scaffold overlap | `NOTED` | `docs/05-security/` vs `docs/05-security-privacy/` perlu konsolidasi kepemilikan kanonikal pada fase berikutnya (tanpa menghapus bukti tanpa keputusan). |
+| Keterlacakan ADR, test case, dan Jira di RTM | `PARTIAL` | Pemetaan Jira telah direkonsiliasi: tidak ada placeholder `DBX-STORY-TBD-*`; 31 issue unik DBX-1..DBX-31 tercatat di sync map, termasuk DBX-29/30/31. Status `ADR-* (Pending)` dan `TC-001..TC-008 (Pending)` masih menandai keputusan/desain uji yang belum difinalisasi atau dieksekusi; verifikasi AC di Jira bukan bukti AC telah diuji. |
+| Eksekusi Acceptance Criteria (AC) & test case | `OPEN` | AC untuk story Jira sudah ditulis/ditinjau, tetapi belum dijalankan; `TC-001..TC-008` masih `PENDING`. Eksekusi dan bukti hasil pengujian tetap diperlukan sebelum status verifikasi dapat dinaikkan. |
+| Audit custom fields Jira | `OPEN` | Pemeriksaan menyeluruh custom fields selain story points/labels belum dilakukan (mis. start date, sprint, component); audit nilai yang diketahui dan tandai yang tidak berlaku/tidak tersedia berdasarkan bukti. |
+| PoC kapasitas dan validasi infrastruktur | `OPEN` | PoC benchmark RAM Stalwart + PostgreSQL (DBX-26) dan validasi port 25 inbound (DBX-25) belum ditunjukkan telah dijalankan; issue masih berstatus To Do. |
+| Security/privacy, release, dan milestones | `PARTIAL` | `docs/05-security/threat-model.md` tersedia, tetapi `docs/05-security-privacy/` dan `docs/10-release/` masih berupa README scaffold; `docs/08-delivery/milestones/` kosong. Lengkapi artefak rinci dan milestone berbasis bukti. |
+| `WATCHDOG.yml` | `OPEN` | File memiliki perubahan lokal yang belum dikomit (`git status`); tetap di luar perubahan recovery dan minta pemilik meninjau/menentukan penanganannya. |
+| Duplikasi/scaffold overlap | `NOTED` | `docs/05-security/` dan `docs/05-security-privacy/` berdampingan; tentukan kepemilikan kanonikal pada fase berikutnya tanpa menghapus bukti tanpa keputusan. |
 | Bukti riset eksternal terbatas | `NOTED` | Klaim riset mengikuti label VERIFIED/NOT VERIFIED/ASSUMPTION per dokumen riset; celah (Q-001/Q-002, dsb.) tetap terbuka di governance logs. |
 
 ## 6. Kendala Eksekusi (Git & Jira) — Berdasarkan Bukti Lingkungan
 
-- **Git:** direktori kerja **bukan repository Git** (`git status/branch/remote` → `fatal: not a git repository`). Tidak ada riwayat commit, branch, atau remote terverifikasi; tidak ada operasi push/PR/sync GitHub yang dapat diklaim selesai dari lingkungan ini.
-- **Jira:** tidak ditemukan artefak sinkronisasi terverifikasi (`docs/08-delivery/jira-sync-map.json` tidak ada; referensi Jira di RTM/delivery bersifat placeholder/TBD). Tidak ada bukti eksekusi MCP/tooling Jira atau pembuatan/penautan issue nyata; status sinkronisasi Jira = **belum tersinkronisasi / belum dapat diverifikasi**.
-- **Implikasi:** seluruh rujukan `DBX-*`/Epic/Story dalam dokumen diperlakukan sebagai rencana/placeholder sampai ada bukti sinkronisasi dan ID final yang tercatat.
+- **Git:** workspace berada pada branch `docs/project-bootstrap` dengan remote `origin` terkonfigurasi. Pada saat pemeriksaan, `WATCHDOG.yml` memiliki perubahan lokal (`git status`); file ini tidak diubah di sini. Status remote branch/PR/push tidak diverifikasi dalam laporan ini.
+- **Jira:** sesuai pemisahan field Decision 5, `docs/08-delivery/jira-sync-map.json` berisi **31 entri** (DBX-1..DBX-31) dengan `issue_existence_verified` dan `requirement_mapping_verified` terpenuhi untuk seluruh 31 entri, serta 31 nilai `sync_status: verified`. `parent_relationship_verified` terpenuhi untuk 17 entri (16 Story + Task DBX-2), sedangkan 14 Epic tercatat `N/A — Epic has no parent`. `description_ac_verified` terpenuhi untuk 16 Story; 15 entri lain (14 Epic + DBX-2) tercatat `not_reviewed` dengan bukti terbatas pada summary. RTM telah diperbarui dengan ID Jira terverifikasi, termasuk DBX-29/30/31; placeholder `DBX-STORY-TBD-*` sudah tidak ada pada pemetaan Jira kanonikal.
+- **Batas verifikasi Jira:** flag di atas menandai keberadaan issue, penautan Epic, dan penulisan/review AC — **bukan** eksekusi AC atau hasil pengujian. Status `ADR-* (Pending)`/`TC-00x (Pending)` di RTM tetap terbuka. Rincian bukti per langkah ada di `docs/08-delivery/recovery-state.md`.
+- **Implikasi:** status Jira `SYNCED`/`verified` di sini berarti rekonsiliasi issue dan traceability menurut bukti recovery, bukan implementasi atau penerimaan AC.
 
 ## 7. Rekomendasi Tindak Lanjut Segera
 
-1. Inisialisasi repository Git (jika disetujui), buat baseline commit dokumentasi, dan tetapkan remote/workflow — lalu perbarui bukti status.
-2. Finalisasi artefak security/privacy, release, dan milestone; konsolidasikan direktori scaffold ganda dengan keputusan tercatat (ADR/DEC).
-3. Lakukan sinkronisasi Jira berbasis bukti (buat/map `jira-sync-map.json`, ganti `DBX-STORY-TBD-*`/`TC`/`ADR` pending dengan ID terverifikasi).
-4. Jalankan review konsistensi silang dokumen (ID, status, evidence label) sebelum menyatakan baseline implementasi.
+1. Eksekusi dan dokumentasikan AC/test case yang relevan; khususnya `TC-001..TC-008` masih `PENDING`, dan AC yang tercatat di Jira belum dijalankan.
+2. Selesaikan audit custom fields Jira di luar story points/labels (mis. start date, sprint, component); rekam field yang kosong, tidak berlaku, atau belum terverifikasi tanpa mengasumsikan nilai.
+3. Jalankan PoC benchmark RAM Stalwart + PostgreSQL (DBX-26) serta validasi port 25 inbound (DBX-25); kedua Jira Story masih berstatus To Do dan belum ada bukti eksekusi PoC pada artefak delivery.
+4. Lengkapi artefak keamanan/privacy dan release yang masih scaffold, isi milestone (`docs/08-delivery/milestones/` kosong), serta tentukan kepemilikan kanonikal `docs/05-security/` vs `docs/05-security-privacy/`.
+5. Tinjau perubahan lokal `WATCHDOG.yml` secara terpisah sesuai keputusan pemilik; file tersebut tidak disentuh dalam pembaruan ini.
+6. Perbarui kembali status/dokumen setelah bukti implementasi, pengujian, PoC, dan keputusan tersedia; jangan menyatakan baseline implementasi/approval sebelum ada verifikasi yang sesuai.
