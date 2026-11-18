@@ -2,20 +2,20 @@
 
 | Status | Versi | Tanggal | Penulis | Dokumen Terkait |
 | --- | --- | --- | --- | --- |
-| PROPOSED | 0.2 | 2026-11-16 | omp-orchestrator/DeliveryDocs | bootstrap-status-report.md, epic-catalogue.md, recovery-state.md, jira-sync-map.json, ADR-001..ADR-012, traceability-matrix.md |
+| PROPOSED | 0.3 | 2026-11-18 | OpenChamber/DeliveryDocs (live reconciliation) | bootstrap-status-report.md, epic-catalogue.md, recovery-state.md, jira-sync-map.json, phase1-preflight-report.md, ADR-001..ADR-012, traceability-matrix.md |
 
-> No PoC step executed yet; all stories To Do; no benchmark/infra evidence.
+> No PoC step executed yet; all stories To Do; no benchmark/infra evidence. A **read-only VPS preflight was completed 2026-11-18** (`docs/08-delivery/phase1-preflight-report.md`): infra readiness `VERIFIED`, no deployment performed.
 
 ## 1. Objectives
 Validate three feasibility gates blocking implementation: (1) inbound mail reachability on port 25 + Stalwart SMTP acceptance (DBX-25); (2) resource envelope Stalwart+PostgreSQL within VPS RAM/CPU (DBX-26); (3) lifecycle correctness create/expiry/purge/permanent-conversion (DBX-21/29/30/31). Secondary: JMAP read/write, Cloudflare DNS/MX prereqs, rollback/cleanup, single pass/fail verdict with evidence. Out of scope: dashboard, Telegram, OTP extraction, sanitization, observability hardening, release cutover.
 
 ## 2. Environment & Prerequisites
-Existing VPS `vps-tencent3b` (Ubuntu 24.04 LTS, 2 vCPU, 3.6 GiB RAM, public IP 43.153.206.84); Cloudflare zone + scoped API token; dedicated PoC domain; Docker Compose v2; Stalwart v1.1.0 (2026-11-09); PostgreSQL 15+; tools dig/swaks/curl/jq. Security prereqs: least-privilege token, default-deny firewall (open only 22/25/80/443), throwaway secrets, disposable data, STARTTLS via ACME, audit logging retained. **Upgrade caveat:** v1.1.0 adds passkey permissions to default roles; if upgrading from v1.0.x, set `STALWART_UPDATE_ROLE_PERMISSIONS=true` once during migration.
+Existing VPS `vps-tencent3b` (Ubuntu 24.04.5 LTS, kernel 6.8.0-138-generic, 2 vCPU AMD EPYC 7K62, 3.6 GiB RAM / 2.3 GiB available, 1.9 GiB swap, 59 GB disk / 48 GB free, public IP 43.153.206.84) — **all VERIFIED 2026-11-18T14:23:06Z**. Docker 29.9.3 + Compose v5.7.0 `VERIFIED`; one unrelated loopback-only `rustfs` container; no Docker volumes. Caddy **v2.11.9 is a host systemd service** owning `*:80`/`*:443` and `127.0.0.1:2019` (not a Compose container) — never edit `/etc/caddy/Caddyfile` or restart it. Cloudflare zone + scoped API token; dedicated PoC domain; Stalwart pin **DISPUTED — REQUIRES APPROVAL**: this plan says v1.1.0 (2026-11-09), ADR-002/architecture overview say v1.0.3. PostgreSQL 15+ **deferred** for Phase 1A (Stalwart-only tests need no external DB). Tools dig/swaks/curl/jq. Security prereqs: least-privilege token, default-deny firewall (open only 22/25/80/443), throwaway secrets, disposable data, STARTTLS via ACME, audit logging retained. **Upgrade caveat:** v1.1.0 adds passkey permissions to default roles; if upgrading from v1.0.x, set `STALWART_UPDATE_ROLE_PERMISSIONS=true` once during migration. **Port 25 is free on host with no listener but externally FILTERED** (Tencent SG + UFW change required and approval-gated); the owner reports UFW currently allows only 22/80/443. External DNS baseline 2026-11-18 unchanged from 2026-11-16 (no MX/A/AAAA/SPF/DMARC/DKIM; `mail.` absent).
 
 ## 3. Port 25 Inbound Validation (DBX-25)
-1. Verify existing VPS `vps-tencent3b` public IP + PTR record.
-2. **[approval-gated]** UFW default deny; allow 22/25; enable.
-3. Confirm no upstream block: external `nc -vz <ip> 25`; document provider port-25 policy.
+1. Verify existing VPS `vps-tencent3b` public IP (`43.153.206.84`, VERIFIED via metadata) + PTR record (`NOT VERIFIED` — not yet queried).
+2. **[approval-gated]** UFW default deny; allow 22/25; enable. Preflight 2026-11-18: UFW is enabled but currently allows only 22/80/443 per owner evidence; live rule list `NOT VERIFIED` via OpenChamber (sudo password required).
+3. Confirm no upstream block: external `nc -vz <ip> 25`; document provider port-25 policy. Preflight 2026-11-18 external probe: TCP/25 **FILTERED/TIMEOUT** from OpenChamber network (consistent with SG/UFW not yet open); 22/80/443 OPEN. This is one vantage point and does not prove global reachability.
 4. Deploy Stalwart Docker bound 0.0.0.0:25 with PoC domain.
 5. Enable SMTP+submission, STARTTLS.
 6. External send via swaks; verify 250 OK + message stored + raw EML retrievable.
@@ -58,7 +58,7 @@ Per-run reversible shutdown: `docker compose -p domibox-poc stop` (preserves vol
 ## 10. Pass/Fail Criteria
 
 ### Phase-1A (Stalwart-only, PASS gates)
-PASS only if ALL: (1) port 25 reachable + delivery accepted/stored (DBX-25); (2) Cloudflare DNS/MX configured + DNS state recorded (DBX-31: **note:** DNS inspection does NOT prove DomiBox conflict-detection application logic works; application positive/conflict path NOT exercised; conflict path NOT TESTABLE until a simulated `route*.mx.cloudflare.net` record exists); (3) Stalwart scenarios 1-5 pass; (4) JMAP-01..07 pass; (5) lifecycle 7.1a (DBX-29 Stalwart subset: create+live+delivery+delete) + 7.4a (DBX-31 DNS inspection) pass; (6) benchmark meets pass (DBX-26); (7) security prereqs satisfied, no secret leak; (8) evidence captured. Any FAIL -> Phase-1A FAILS; document in risk register; decide remediate or descope.
+PASS only if ALL: (1) port 25 reachable + delivery accepted/stored (DBX-25) — **preflight status `BLOCKED`: 25 currently FILTERED externally with no host listener; requires SG+UFW approval**; (2) Cloudflare DNS/MX configured + DNS state recorded (DBX-31: **note:** DNS inspection does NOT prove DomiBox conflict-detection application logic works; application positive/conflict path NOT exercised; conflict path NOT TESTABLE until a simulated `route*.mx.cloudflare.net` record exists); (3) Stalwart scenarios 1-5 pass; (4) JMAP-01..07 pass; (5) lifecycle 7.1a (DBX-29 Stalwart subset: create+live+delivery+delete) + 7.4a (DBX-31 DNS inspection) pass; (6) benchmark meets pass (DBX-26); (7) security prereqs satisfied, no secret leak; (8) evidence captured. Any FAIL -> Phase-1A FAILS; document in risk register; decide remediate or descope. **Infrastructure readiness gate is PASS (`VERIFIED` 2026-11-18); the remaining gates are approval-gated / `NOT VERIFIED`, not infrastructure failures.**
 
 ### Phase-1B (App-dependent, BLOCKED until DomiBox code exists)
 Lifecycle 7.1b (DBX-29 TTL metadata), 7.2 (DBX-21 auto-purge scheduler), 7.3 (DBX-30 temp->permanent conversion), and 7.4b (DBX-31 conflict-hold application logic) require DomiBox application code that does not exist yet. These tests are **BLOCKED** and cannot be executed during Phase-1 PoC. They will be deferred to Phase-2 integration testing after the application layer is implemented.

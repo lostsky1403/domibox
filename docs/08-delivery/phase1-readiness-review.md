@@ -2,13 +2,13 @@
 
 | Status | Versi | Tanggal | Penulis | Dokumen Terkait |
 | --- | --- | --- | --- | --- |
-| PROPOSED | 0.1 | 2026-11-16 | omp-orchestrator/DeliveryDocs | `docs/08-delivery/bootstrap-status-report.md`<br>`docs/08-delivery/epic-catalogue.md`<br>`docs/08-delivery/recovery-state.md`<br>`docs/08-delivery/jira-sync-map.json`<br>`docs/08-delivery/plans/phase1-poc-execution-plan.md`<br>`docs/02-requirements/traceability/traceability-matrix.md` |
+| PROPOSED | 0.2 | 2026-11-18 | OpenChamber/DeliveryDocs (live reconciliation) | `docs/08-delivery/bootstrap-status-report.md`<br>`docs/08-delivery/epic-catalogue.md`<br>`docs/08-delivery/recovery-state.md`<br>`docs/08-delivery/jira-sync-map.json`<br>`docs/08-delivery/phase1-preflight-report.md`<br>`docs/08-delivery/plans/phase1-poc-execution-plan.md`<br>`docs/02-requirements/traceability/traceability-matrix.md` |
 
 ---
 
-## Verdict: **PARTIALLY READY** — READY FOR OWNER REVIEW after blockers below are closed
+## Verdict: **READY FOR CONTROLLED POC — CONDITIONAL / APPROVAL-GATED**
 
-Phase 1 (documentation bootstrap + Jira reconciliation) is materially complete and internally consistent. Phase 1 PoC execution has NOT started; all PoC stories remain `To Do`. The project is **not** ready for implementation kickoff until the blockers in §9 are resolved and owner approvals recorded.
+Phase 1 (documentation bootstrap + Jira reconciliation) is materially complete and internally consistent. The 2026-11-18 live preflight (`docs/08-delivery/phase1-preflight-report.md`) **VERIFIED** that `vps-tencent3b` is up and provisioned with ample headroom (2 vCPU, 3.6 GiB RAM / 2.3 GiB available, 48 GB disk, Docker 29.9.3 + Compose v5.7.0, Caddy on 80/443, port 25 free on host). The prior `PARTIALLY READY` was caused by an OMP-environment SSH timeout, now resolved. Phase 1 PoC execution has still NOT started; all PoC stories remain `To Do`, and the infrastructure go/no-go depends on the approval gates in §9. VPS reachability does not close implementation stories.
 
 ---
 
@@ -105,7 +105,7 @@ All items in `phase1-poc-execution-plan.md` are unexecuted:
 - Security prerequisites (§2 of plan).
 - Evidence capture and PoC report.
 
-**Blockers:** VPS provisioning, Cloudflare zone/token, PoC domain, owner approval of ADRs/proposed values.
+**Blockers (updated 2026-11-18):** VPS provisioning is `VERIFIED` complete and is no longer a blocker. Remaining gates: inbound TCP/25 approval (Tencent SG + UFW — externally FILTERED, no listener), Cloudflare DNS record additions (approval-gated), Stalwart version pin decision (v1.1.0 plan vs v1.0.3 ADR-002), Management API validation (`NOT VERIFIED`), and owner approval of ADRs/proposed values. Phase 1B remains `BLOCKED` pending DomiBox application code.
 
 ---
 
@@ -153,5 +153,11 @@ All items in `phase1-poc-execution-plan.md` are unexecuted:
 6. `docs/08-delivery/milestones/` empty.
 7. OPS-001/OPS-004 story coverage unverified.
 8. Jira custom fields beyond SP/labels unaudited.
-9. `WATCHDOG.yml` uncommitted changes (owner decision pending).
+9. `WATCHDOG.yml` uncommitted changes (owner decision pending) — working tree was clean at the 2026-11-18 preflight.
 10. No owner approval recorded for any ADR or proposed value.
+11. **(NEW, 2026-11-18) Inbound TCP/25 not authorized** — Tencent SG rule + UFW allow required; external probe FILTERED; no active listener. `BLOCKED`.
+12. **(NEW, 2026-11-18) Cloudflare DNS records not added** — A/MX/SPF/DMARC/DKIM approval-gated. `REQUIRES APPROVAL`.
+13. **(NEW, 2026-11-18) Stalwart version pin conflict** — PoC plan v1.1.0 vs ADR-002/architecture v1.0.3. `REQUIRES APPROVAL`.
+14. **(NEW, 2026-11-18) Stalwart Management API endpoints/auth unverified** (plan §13). `NOT VERIFIED`.
+
+**No longer a blocker (VERIFIED 2026-11-18):** VPS provisioning / SSH reachability — prior OMP SSH timeout was environmental; OpenChamber local terminal reaches `vps-tencent3b` with `BatchMode=yes`.
