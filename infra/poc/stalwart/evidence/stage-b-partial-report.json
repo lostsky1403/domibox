@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "stage": "B",
+  "date": "2026-11-19",
+  "verdict": "STAGE B PARTIAL",
+  "credential_reconciliation": {
+    "credential_source": "OpenChamber secure records supplied before this run; no new secrets generated",
+    "selected_records": "Root Tencent principal (masked 2000****661), Cloudflare zone token (distinct from invalid API_TOKEN env value), VPS sudo record, Stalwart recovery credential from protected VPS env file",
+    "env_overrides_detected": "API_TOKEN env value has a different fingerprint and is invalid; it was not used for DNS",
+    "product_family_fix": "Target is Lighthouse instance lhins-owo5m7sf, not a CVM. CVM DescribeInstances returned zero because of the product mismatch; Lighthouse API returned the instance with public IP 43.153.206.84",
+    "account_ownership": "Instance name contains the authenticated AppId 1526089049; account ownership verified"
+  },
+  "tests": [
+    {"id":"B-01","description":"Tencent identity and target discovery","status":"PASS","expected":"exact instance visible via authenticated API","actual":"Lighthouse DescribeInstances returned lhins-owo5m7sf / 43.153.206.84 in ap-singapore"},
+    {"id":"B-02","description":"Firewall attachment and sharing scope","status":"PASS","expected":"instance-scoped firewall rules identified","actual":"DescribeFirewallRules returned 4 instance-scoped rules (22/80/443/ICMP); no TCP/25; no unrelated instance attached"},
+    {"id":"B-03","description":"Cloudflare token scope","status":"PARTIAL","expected":"DNS edit permission verified","actual":"zone read and DNS record read returned HTTP 200; /user/tokens/verify returned HTTP 401 code 1000 (user-scoped endpoint rejects zone-scoped token); write permission proven indirectly by successful create/delete of the two approved records"},
+    {"id":"B-04","description":"Authorized TCP/25 changes","status":"PASS","expected":"narrow rule added and later removed","actual":"Lighthouse Add request 06112241-df99-44ec-ada6-b40574571efa; Delete request 8f25baba-d5bb-4b62-80a9-d79834ca79f0; UFW 25/tcp added then deleted; SSH/80/443 untouched"},
+    {"id":"B-05","description":"Public SMTP listener","status":"PASS","expected":"0.0.0.0:25 with management loopback only","actual":"resolved bindings 0.0.0.0:25 and 127.0.0.1:8080; container port 443 not published"},
+    {"id":"B-06","description":"Independent public port-25 test","status":"PASS","expected":"SMTP connection from independent network","actual":"MXToolbox US-East: TCP connect 0.581s, banner 220 mail.sintaksis.biz.id Stalwart ESMTP at your service, EHLO with STARTTLS/SMTPUTF8/SIZE/REQUIRTLS"},
+    {"id":"B-07","description":"STARTTLS and TLS","status":"PASS","expected":"TLS capability and negotiation result recorded","actual":"MXToolbox SMTP TLS OK - Supports TLS; Stage A confirmed STARTTLS negotiation; certificate verification not performed for the self-signed PoC"},
+    {"id":"B-08","description":"Open-relay prevention","status":"PASS","expected":"unauthorized relay rejected","actual":"RCPT TO test@mxtoolboxsmtpdiag.com rejected 550 5.7.1 Relay not allowed"},
+    {"id":"B-09","description":"Cloudflare A/MX publication and verification","status":"PASS","expected":"A mail -> 43.153.206.84, MX -> mail priority 10, DNS Only","actual":"A id fda87b27e4a14cead2cf826fe1782b0c and MX id b2df77b784ec21125d762e2bc3f8dc0e created, authoritative DoH verified, both deleted after test; zone now has zero records"},
+    {"id":"B-10","description":"Disposable recipient lifecycle","status":"PASS","expected":"create, use, verify, destroy only the run-owned id","actual":"account id d created via x:Account/set, verified by exact name, destroyed; x:Account/query for stageb- returned zero ids"},
+    {"id":"B-11","description":"Real external email delivery via public MX","status":"NOT EXECUTED","expected":"independent provider delivers a message and JMAP retrieval confirms it","actual":"Windows client and hosted browser both have outbound TCP/25 blocked; Wormly sender is subscriber-only; FormSubmit timed out; MXToolbox cannot send to a custom recipient"},
+    {"id":"B-12","description":"Multiple sequential inbound messages","status":"NOT EXECUTED","actual":"omitted because B-11 could not be executed"}
+  ],
+  "cleanup": {
+    "lighthouse_rule_removed": true,
+    "ufw_rule_removed": true,
+    "dns_records_removed_by_id": true,
+    "compose_binding_restored_to_loopback": true,
+    "container_stopped": true,
+    "poc_volumes_preserved": true,
+    "unrelated_services_healthy": "caddy active, rustfs Up 8 days, SSH reachable"
+  },
+  "secrets_disclaimer": "No SecretId, SecretKey, API token, sudo password, recovery password, auth header or full credential path is recorded."
+}
