@@ -1,0 +1,55 @@
+# DomiBox Phase 1A — isolated Stalwart PoC
+# LOCAL PREPARATION ONLY. Do NOT run against vps-tencent3b without owner approval.
+#
+# Verified against official Stalwart docs (2026-11-18):
+#   - image: https://stalw.art/docs/install/platform/docker , /docs/install/upgrade
+#   - listeners: https://stalw.art/docs/server/listener
+#   - config model: https://stalw.art/docs/configuration/
+# Safety: project/volumes/network are all prefixed domibox-poc. Caddy (host 80/443),
+# rustfs and all other workloads are never referenced.
+name: domibox-poc
+
+services:
+  stalwart:
+    # Exact pin to the current stable release (v1.1.1, released 2026-11-16).
+    # Deliberately pinned, NOT `v1`/`latest`: test every change first.
+    image: stalwartlabs/stalwart:v1.1.1
+    container_name: domibox-poc-stalwart
+    init: true
+    restart: "${POC_RESTART_POLICY:-no}"   # PoC default: no silent restart
+    ports:
+      # SMTP inbound. Loopback by default for local safety.
+      # REQUIRES OWNER APPROVAL to set POC_SMTP_HOST_IP=0.0.0.0 and open
+      # Tencent Security Group + UFW TCP/25. No listener exists today.
+      - "${POC_SMTP_HOST_IP:-127.0.0.1}:25:25"
+      # Bootstrap wizard / WebUI / JMAP management API. Loopback only;
+      # reach it from your workstation via `ssh -L 8080:127.0.0.1:8080 vps-tencent3b`.
+      # Never publish this on 0.0.0.0.
+      - "127.0.0.1:${POC_ADMIN_HOST_PORT:-8080}:8080"
+      # Intentionally NOT published (host collisions / attack surface):
+      #   443  -> Caddy owns host 80/443
+      #   465, 993, 995, 4190, 587, 143, 110 -> not needed for inbound PoC
+      #   5432, 8081 -> no database, no separate admin port in Stalwart 1.x
+    volumes:
+      # config.json (DataStore pointer) lives here; wizard writes it on first start.
+      - domibox-poc_etc:/etc/stalwart
+      # RocksDB data, blobs and configuration objects live here.
+      - domibox-poc_data:/var/lib/stalwart
+    networks:
+      - domibox-poc_net
+    labels:
+      com.domibox.project: domibox-poc
+      com.domibox.poc: phase1a-stalwart
+      com.domibox.managed-by: openchamber
+
+networks:
+  domibox-poc_net:
+    name: domibox-poc_net
+    driver: bridge
+    # Never attach this service to rustfs_default or any other workload network.
+
+volumes:
+  domibox-poc_etc:
+    name: domibox-poc_etc
+  domibox-poc_data:
+    name: domibox-poc_data
