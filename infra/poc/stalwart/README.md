@@ -116,6 +116,8 @@ Executing any of this requires owner authorization recorded first.
 
 **Stage A (authorized private PoC, 2026-11-18):** the real LOCAL run passed end-to-end (session, domain/account/alias management, STARTTLS, delivery/retrieval, cleanup). Findings and measurements: `evidence/stage-a-summary.md`; sanitized raw report: `evidence/stage-a-local-report.json`. Live Stalwart differed from the mocks in three ways, now corrected in the runner: session discovery is `/.well-known/jmap`, management `Foo/get` returns `list`, and `urn:stalwart:jmap` is advertised under `accountCapabilities`.
 
+**Stage B (authorized public inbound test, 2026-11-18):** **BLOCKED at Gate 1** — the supplied Tencent credentials authenticate but enumerate zero CVM instances and Security Groups, so the target Security Group for `ins-f6b2sjfy` cannot be safely identified. No UFW, Security Group, DNS or listener change was made. Baseline and requirements: `evidence/stage-b-blocked.md`.
+
 **Still not performed:** external port-25 test, public DNS/firewall changes, or any Stage B action. Those remain `NOT VERIFIED` / `NOT EXECUTED`.
 
 ### Two-stage live handoff (NOT authorized by this repository)
