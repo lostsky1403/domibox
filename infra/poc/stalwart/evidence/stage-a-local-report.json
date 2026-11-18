@@ -1,0 +1,149 @@
+{
+  "evidence_dir": "infra/poc/stalwart/reports\\local-20261118T154415Z-c3fe54",
+  "live_functional_test": true,
+  "mode": "local",
+  "required_tests": [
+    "T-001",
+    "T-002",
+    "T-003",
+    "T-004",
+    "T-T01",
+    "T-T02",
+    "T-T03",
+    "T-005"
+  ],
+  "results": [
+    {
+      "actual": "session OK; capabilities: urn:ietf:params:jmap:blob, urn:ietf:params:jmap:calendars, urn:ietf:params:jmap:calendars:parse, urn:ietf:params:jmap:contacts, urn:ietf:params:jmap:contacts:parse, urn:ietf:params:jmap:core, urn:ietf:params:jmap:emailpush, urn:ietf:params:jmap:filenode, urn:ietf:params:jmap:mail, urn:ietf:params:jmap:metadata, urn:ietf:params:jmap:principals, urn:ietf:params:jmap:principals:availability, urn:ietf:params:jmap:quota, urn:ietf:params:jmap:sieve, urn:ietf:params:jmap:submission, urn:ietf:params:jmap:vacationresponse, urn:ietf:params:jmap:webpush-vapid, urn:ietf:params:jmap:websocket",
+      "description": "JMAP session and required capabilities",
+      "duration_ms": 125,
+      "evidence": "infra\\poc\\stalwart\\reports\\local-20261118T154415Z-c3fe54\\report.json#T-001",
+      "execution_status": "EXECUTED",
+      "expected": "GET /jmap/ returns core, stalwart and mail capabilities",
+      "failure_reason": "",
+      "preconditions": "Authorized PoC running; loopback JMAP endpoint reachable",
+      "result": "PASS",
+      "test_id": "T-001"
+    },
+    {
+      "actual": "STARTTLS advertised; banner=mail.sintaksis.biz.id you had me at EHLO\nSTARTTLS\nSMTPUTF8\nSIZE 104857600\nREQUIR",
+      "description": "STARTTLS advertised",
+      "duration_ms": 0,
+      "evidence": "infra\\poc\\stalwart\\reports\\local-20261118T154415Z-c3fe54\\report.json#T-T01",
+      "execution_status": "EXECUTED",
+      "expected": "EHLO advertises STARTTLS",
+      "failure_reason": "",
+      "preconditions": "SMTP EHLO reached; --starttls requested",
+      "result": "PASS",
+      "test_id": "T-T01"
+    },
+    {
+      "actual": "STARTTLS negotiation succeeded",
+      "description": "STARTTLS negotiation",
+      "duration_ms": 0,
+      "evidence": "infra\\poc\\stalwart\\reports\\local-20261118T154415Z-c3fe54\\report.json#T-T02",
+      "execution_status": "EXECUTED",
+      "expected": "STARTTLS handshake succeeds; plaintext result is never a TLS PASS",
+      "failure_reason": "",
+      "preconditions": "T-T01 passed",
+      "result": "PASS",
+      "test_id": "T-T02"
+    },
+    {
+      "actual": "certificate verification intentionally skipped for authorized PoC",
+      "description": "TLS certificate state",
+      "duration_ms": 0,
+      "evidence": "infra\\poc\\stalwart\\reports\\local-20261118T154415Z-c3fe54\\report.json#T-T03",
+      "execution_status": "EXECUTED",
+      "expected": "Certificate verification succeeded, or was explicitly skipped for the authorized PoC",
+      "failure_reason": "",
+      "preconditions": "T-T02 passed",
+      "result": "PASS",
+      "test_id": "T-T03"
+    },
+    {
+      "actual": "not executed",
+      "description": "Plain SMTP acceptance (optional)",
+      "duration_ms": 0,
+      "evidence": "",
+      "execution_status": "NOT_EXECUTED",
+      "expected": "Plaintext delivery is reported separately and never as a TLS result",
+      "failure_reason": "plain SMTP test not requested",
+      "preconditions": "--plain-smtp-test requested",
+      "result": "BLOCKED",
+      "test_id": "T-T04"
+    },
+    {
+      "actual": "domain sintaksis.biz.id -> id b",
+      "description": "Domain discovery",
+      "duration_ms": 280,
+      "evidence": "infra\\poc\\stalwart\\reports\\local-20261118T154415Z-c3fe54\\report.json#T-002",
+      "execution_status": "EXECUTED",
+      "expected": "x:Domain/query + x:Domain/get resolve the exact configured domain id",
+      "failure_reason": "",
+      "preconditions": "T-001 passed",
+      "result": "PASS",
+      "test_id": "T-002"
+    },
+    {
+      "actual": "created run-owned id c; alias poc-alias-67fe6e3d07@sintaksis.biz.id",
+      "description": "Throwaway identity creation",
+      "duration_ms": 156,
+      "evidence": "infra\\poc\\stalwart\\reports\\local-20261118T154415Z-c3fe54\\report.json#T-003",
+      "execution_status": "EXECUTED",
+      "expected": "x:Account/set create returns an id confirmed by x:Account/get",
+      "failure_reason": "",
+      "preconditions": "T-002 passed",
+      "result": "PASS",
+      "test_id": "T-003"
+    },
+    {
+      "actual": "SMTP accepted in 2766 ms; poll_attempts=1 elapsed=250ms subject_match=True recipient_match=True timed_out=False; smtp_acceptance and jmap_visibility recorded separately",
+      "description": "Message delivery and JMAP retrieval",
+      "duration_ms": 3015,
+      "evidence": "infra\\poc\\stalwart\\reports\\local-20261118T154415Z-c3fe54\\report.json#T-004",
+      "execution_status": "EXECUTED",
+      "expected": "Sent subject token is found by Email/query + Email/get",
+      "failure_reason": "",
+      "preconditions": "T-003 passed; SMTP listener accepting",
+      "result": "PASS",
+      "test_id": "T-004"
+    },
+    {
+      "actual": "destroyed only run-owned ids: c",
+      "description": "Cleanup of identities created in this run",
+      "duration_ms": 125,
+      "evidence": "infra\\poc\\stalwart\\reports\\local-20261118T154415Z-c3fe54\\report.json#T-005",
+      "execution_status": "EXECUTED",
+      "expected": "Only this run's ids are destroyed; each destroy is confirmed",
+      "failure_reason": "",
+      "preconditions": "T-003 created at least one identity",
+      "result": "PASS",
+      "test_id": "T-005"
+    }
+  ],
+  "run_id": "local-20261118T154415Z-c3fe54",
+  "schema_version": 2,
+  "secrets_disclaimer": "no credentials, tokens, userinfo or generated account passwords are recorded",
+  "started_at": "2026-11-18T15:44:15.169049+00:00",
+  "summary": {
+    "BLOCKED": 1,
+    "FAIL": 0,
+    "NOT_EXECUTED": 0,
+    "PASS": 8,
+    "overall": "PASS",
+    "total": 9
+  },
+  "target": {
+    "domain": "sintaksis.biz.id",
+    "jmap_url": "http://127.0.0.1:18080/jmap/",
+    "smtp_host": "127.0.0.1",
+    "smtp_port": 2525
+  },
+  "tls_policy": {
+    "plaintext_tested": false,
+    "requested": true,
+    "verification_skipped": true
+  },
+  "vantage": "not evaluated"
+}

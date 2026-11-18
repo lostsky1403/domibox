@@ -114,7 +114,9 @@ Executing any of this requires owner authorization recorded first.
 - `bash scripts/validate.sh` → Compose parse, exact v1.1.1 pin, `domibox-poc` isolation, loopback bind, port-collision review, JSON validity, no secret-like assignments, no `REPLACE_WITH_*` placeholders, Python compile, self-tests.
 - `bash scripts/smoke-test.sh` (STATIC) → `overall=NOT_EXECUTED`, `live_functional_test=false`; no network calls.
 
-**Not performed:** image pull, container start, real SMTP/JMAP functional tests, external port-25 test, DNS changes. All live capabilities remain `NOT VERIFIED` / `NOT EXECUTED`.
+**Stage A (authorized private PoC, 2026-11-18):** the real LOCAL run passed end-to-end (session, domain/account/alias management, STARTTLS, delivery/retrieval, cleanup). Findings and measurements: `evidence/stage-a-summary.md`; sanitized raw report: `evidence/stage-a-local-report.json`. Live Stalwart differed from the mocks in three ways, now corrected in the runner: session discovery is `/.well-known/jmap`, management `Foo/get` returns `list`, and `urn:stalwart:jmap` is advertised under `accountCapabilities`.
+
+**Still not performed:** external port-25 test, public DNS/firewall changes, or any Stage B action. Those remain `NOT VERIFIED` / `NOT EXECUTED`.
 
 ### Two-stage live handoff (NOT authorized by this repository)
 

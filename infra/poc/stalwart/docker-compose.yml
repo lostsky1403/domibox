@@ -17,6 +17,11 @@ services:
     container_name: domibox-poc-stalwart
     init: true
     restart: "${POC_RESTART_POLICY:-no}"   # PoC default: no silent restart
+    environment:
+      # Optional recovery administrator for the private bootstrap only.
+      # The VALUE is supplied at run time from a protected local env file and
+      # is never committed to Git. Leave unset for normal starts.
+      - STALWART_RECOVERY_ADMIN=${STALWART_RECOVERY_ADMIN:-}
     ports:
       # SMTP inbound. Loopback by default for local safety.
       # REQUIRES OWNER APPROVAL to set POC_SMTP_HOST_IP=0.0.0.0 and open

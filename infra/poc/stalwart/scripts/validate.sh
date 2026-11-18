@@ -74,7 +74,7 @@ else
 fi
 
 # 7. Secret-leak check.
-if grep -RnE 'STALWART_RECOVERY_ADMIN[[:space:]]*=[[:space:]]*[^[:space:]]|^[[:space:]]*[A-Z_]*(_PASSWORD|_TOKEN|_SECRET|_API_KEY)[[:space:]]*=[[:space:]]*[^[:space:]]' \
+if grep -RnE 'STALWART_RECOVERY_ADMIN[[:space:]]*=[[:space:]]*[^$[:space:]][^[:space:]]*|^[[:space:]]*[A-Z_]*(_PASSWORD|_TOKEN|_SECRET|_API_KEY)[[:space:]]*=[[:space:]]*[^$[:space:]][^[:space:]]*' \
     --exclude='validate.sh' --exclude='poc_runner.py' --exclude='test_poc_runner.py' \
     --include='*.yml' --include='*.yaml' --include='*.sh' --include='*.example' --include='.env.example' . ; then
   bad "credential-like assignment found - review immediately"

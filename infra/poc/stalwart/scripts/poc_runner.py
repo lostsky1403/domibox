@@ -230,14 +230,24 @@ class JmapClient:
             raise InvalidJson(f"response is not valid JSON: {exc}") from exc
 
     def session(self) -> Dict[str, Any]:
-        response = self.transport.request("GET", self.url, self._headers())
+        # Observed on Stalwart v1.1.1: GET /jmap/ is 404; the session document is
+        # served at /.well-known/jmap (307 -> /jmap/session).
+        parts = urlsplit(self.url)
+        session_url = f"{parts.scheme}://{parts.netloc}/.well-known/jmap"
+        response = self.transport.request("GET", session_url, self._headers())
         obj = self._parse(response)
         if not isinstance(obj, dict):
             raise JmapError("JMAP session response is not an object")
         caps = obj.get("capabilities")
         if not isinstance(caps, dict):
             raise JmapError("JMAP session has no capabilities object")
-        missing = [c for c in REQUIRED_CAPS if c not in caps]
+        # Observed: urn:stalwart:jmap appears under accountCapabilities, not at
+        # the top level. Check the union of both places.
+        available = set(caps)
+        for account in (obj.get("accounts") or {}).values():
+            if isinstance(account, dict):
+                available.update((account.get("accountCapabilities") or {}).keys())
+        missing = [c for c in REQUIRED_CAPS if c not in available]
         if missing:
             raise JmapError("missing JMAP capabilities: " + ", ".join(missing))
         return obj
@@ -298,7 +308,10 @@ class JmapClient:
                     raise JmapError(
                         f"{name} {failure_key}: {self.sanitize(json.dumps(failures))}")
             for field in RESPONSE_SHAPES.get(str(name), ()):
-                if not isinstance(args.get(field), list):
+                # Stalwart's Foo/get returns "list"; standard mail methods use
+                # "data". Accept either, but require a real list.
+                candidates = (field, "list") if field == "data" else (field,)
+                if not any(isinstance(args.get(candidate), list) for candidate in candidates):
                     raise JmapError(f"{name}: missing or invalid {field} in response")
             req_args = requested[call_id]
             for operation, result_key, failure_key in (
@@ -324,6 +337,15 @@ class JmapClient:
 # --------------------------------------------------------------------------
 # Vendor-supported operations
 # --------------------------------------------------------------------------
+def _objects(args: Dict[str, Any], field: str = "data") -> List[Any]:
+    """Read a JMAP list, accepting Stalwart's `list` and standard `data`."""
+    for key in (field, "list"):
+        value = args.get(key)
+        if isinstance(value, list):
+            return value
+    return []
+
+
 def discover_domain_id(client: JmapClient, domain_name: str) -> str:
     query = client.call(USING_MGMT, [["x:Domain/query", {"filter": {"name": domain_name}}, "dq"]])
     args = query.get("dq", ("", {}))[1]
@@ -331,7 +353,7 @@ def discover_domain_id(client: JmapClient, domain_name: str) -> str:
     if not ids:
         raise MissingDomain(f"x:Domain/query returned no domain for {domain_name}")
     get = client.call(USING_MGMT, [["x:Domain/get", {"ids": ids[:10]}, "dg"]])
-    data = get.get("dg", ("", {}))[1].get("data") or []
+    data = _objects(get.get("dg", ("", {}))[1])
     for entry in data:
         if isinstance(entry, dict) and entry.get("name") == domain_name and entry.get("id"):
             return str(entry["id"])
@@ -378,7 +400,7 @@ def create_identity(client: JmapClient, domain_name: str, domain_id: str,
 
 def account_name(client: JmapClient, account_id: str, call_id: str = "vg") -> Optional[str]:
     resp = client.call(USING_MGMT, [["x:Account/get", {"ids": [account_id]}, call_id]])
-    data = resp.get(call_id, ("", {}))[1].get("data") or []
+    data = _objects(resp.get(call_id, ("", {}))[1])
     return data[0].get("name") if data else None
 
 
@@ -452,7 +474,7 @@ def verify_message(client: JmapClient, account_id: str, subject_token: str,
                  "properties": ["id", "subject", "receivedAt", "from", "to"]},
                 "eg",
             ]])
-            data = fetched.get("eg", ("", {}))[1].get("data") or []
+            data = _objects(fetched.get("eg", ("", {}))[1])
             subjects = [str(item.get("subject") or "") for item in data if isinstance(item, dict)]
             recipients = [addr for item in data if isinstance(item, dict)
                           for addr in _address_list(item.get("to"))]
