@@ -1,0 +1,848 @@
+openapi: 3.1.0
+info:
+  title: DomiBox Core Management API
+  description: |
+    Spesifikasi API RESTful resmi untuk platform DomiBox (Self-Hosted Multi-Domain Email Management Platform).
+    Mengatur manajemen domain, mailbox sementara dan permanen, penerimaan email, ekstraksi OTP, dan audit log.
+  version: 0.1.0
+  contact:
+    name: DomiBox Engineering
+    url: https://github.com/lostsky1403/domibox
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development environment
+  - url: https://sintaksis.biz.id/api/v1
+    description: Production Pilot Server (Reverse Proxy / TLS)
+
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []
+
+paths:
+  /auth/login:
+    post:
+      summary: Otentikasi Pengguna Tunggal (Owner Login)
+      operationId: login
+      security: []
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Berhasil terotentikasi, mengembalikan token JWT dan data sesi.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+
+  /auth/me:
+    get:
+      summary: Informasi Profil Pemilik & Status Sesi
+      operationId: getCurrentUser
+      tags:
+        - Authentication
+      responses:
+        '200':
+          description: Profil pemilik berhasil diperoleh.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /auth/logout:
+    post:
+      summary: Mengakhiri Sesi Pemilik
+      operationId: logout
+      tags:
+        - Authentication
+      description: "Mengakhiri sesi aktif (cookie/JWT) dan mencatat peristiwa logout untuk audit."
+      responses:
+        '204':
+          description: Sesi berhasil diakhiri.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          description: Kesalahan server internal.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /domains:
+    get:
+      summary: Daftar Domain Terdaftar
+      operationId: listDomains
+      tags:
+        - Domains
+      parameters:
+        - $ref: '#/components/parameters/PageQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+      responses:
+        '200':
+          description: Daftar domain berhasil diambil.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainListResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    post:
+      summary: Tambah Domain Baru untuk Manajemen Email
+      operationId: createDomain
+      tags:
+        - Domains
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDomainRequest'
+      responses:
+        '201':
+          description: Domain berhasil didaftarkan dan token verifikasi DNS dibuat.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainDetailResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+  /domains/{domainId}:
+    get:
+      summary: Detail Domain dan Status Verifikasi DNS
+      operationId: getDomainById
+      tags:
+        - Domains
+      parameters:
+        - $ref: '#/components/parameters/DomainIdPath'
+      responses:
+        '200':
+          description: Detail domain berhasil diperoleh.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainDetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      summary: Hapus Domain dari Sistem
+      operationId: deleteDomain
+      tags:
+        - Domains
+      parameters:
+        - $ref: '#/components/parameters/DomainIdPath'
+      responses:
+        '204':
+          description: Domain berhasil dihapus.
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /domains/{domainId}/verify:
+    post:
+      summary: Picu Verifikasi Ulang Rekaman DNS (MX/TXT)
+      operationId: verifyDomainDns
+      tags:
+        - Domains
+      parameters:
+        - $ref: '#/components/parameters/DomainIdPath'
+      responses:
+        '200':
+          description: Hasil verifikasi DNS terbaru.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DnsVerificationResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /mailboxes:
+    get:
+      summary: Daftar Mailbox (Sementara & Permanen)
+      operationId: listMailboxes
+      tags:
+        - Mailboxes
+      parameters:
+        - name: type
+          in: query
+          description: Filter berdasarkan tipe mailbox (temporary | permanent)
+          schema:
+            type: string
+            enum: [temporary, permanent]
+        - name: domainId
+          in: query
+          description: Filter berdasarkan ID domain
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          description: Filter status mailbox (active, expired, suspended)
+          schema:
+            type: string
+            enum: [active, expired, suspended]
+        - $ref: '#/components/parameters/PageQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+      responses:
+        '200':
+          description: Daftar mailbox berhasil diperoleh.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailboxListResponse'
+
+    post:
+      summary: Buat Mailbox Baru (Random/Kustom, Temporary/Permanent)
+      operationId: createMailbox
+      tags:
+        - Mailboxes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMailboxRequest'
+      responses:
+        '201':
+          description: Mailbox berhasil dibuat.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailboxDetailResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+  /mailboxes/{mailboxId}:
+    get:
+      summary: Detail Mailbox & Statistik Penggunaan
+      operationId: getMailboxById
+      tags:
+        - Mailboxes
+      parameters:
+        - $ref: '#/components/parameters/MailboxIdPath'
+      responses:
+        '200':
+          description: Detail mailbox berhasil diperoleh.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailboxDetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    patch:
+      summary: Perbarui Mailbox (Perpanjang TTL / Ubah Status / Konversi)
+      operationId: updateMailbox
+      tags:
+        - Mailboxes
+      parameters:
+        - $ref: '#/components/parameters/MailboxIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMailboxRequest'
+      responses:
+        '200':
+          description: Mailbox berhasil diperbarui.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailboxDetailResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      summary: Hapus Mailbox dan Bersihkan Alias di Stalwart
+      operationId: deleteMailbox
+      tags:
+        - Mailboxes
+      parameters:
+        - $ref: '#/components/parameters/MailboxIdPath'
+      responses:
+        '204':
+          description: Mailbox berhasil dihapus secara bersih.
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /mailboxes/{mailboxId}/messages:
+    get:
+      summary: Daftar Email Masuk pada Mailbox Tertentu
+      operationId: listMailboxMessages
+      tags:
+        - Messages
+      parameters:
+        - $ref: '#/components/parameters/MailboxIdPath'
+        - $ref: '#/components/parameters/PageQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+      responses:
+        '200':
+          description: Daftar pesan berhasil diperoleh.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageListResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /messages:
+    get:
+      summary: Kotak Masuk Global Terpadu (Global Inbox)
+      operationId: listGlobalMessages
+      tags:
+        - Messages
+      parameters:
+        - name: query
+          in: query
+          description: Pencarian pengirim atau subjek email
+          schema:
+            type: string
+        - name: hasOtp
+          in: query
+          description: Filter hanya email yang memiliki kode OTP terekstraksi
+          schema:
+            type: boolean
+        - $ref: '#/components/parameters/PageQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+      responses:
+        '200':
+          description: Daftar pesan terpadu berhasil diperoleh.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageListResponse'
+
+  /messages/{messageId}:
+    get:
+      summary: Detail Pesan Email, Konten Sanitasi, & Kode OTP
+      operationId: getMessageById
+      tags:
+        - Messages
+      parameters:
+        - $ref: '#/components/parameters/MessageIdPath'
+      responses:
+        '200':
+          description: Detail isi pesan email berhasil diperoleh.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageDetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      summary: Hapus Pesan Email dari Penyimpanan
+      operationId: deleteMessage
+      tags:
+        - Messages
+      parameters:
+        - $ref: '#/components/parameters/MessageIdPath'
+      responses:
+        '204':
+          description: Pesan email berhasil dihapus.
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /messages/{messageId}/raw:
+    get:
+      summary: Unduh Payload Mentah RFC822 / EML Email
+      operationId: getRawMessageEml
+      tags:
+        - Messages
+      parameters:
+        - $ref: '#/components/parameters/MessageIdPath'
+      responses:
+        '200':
+          description: Raw RFC822 EML stream.
+          content:
+            message/rfc822:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /notifications/telegram/pair:
+    post:
+      summary: Hasilkan Kode Pairing untuk Menghubungkan Bot Telegram
+      operationId: generateTelegramPairingCode
+      tags:
+        - Notifications
+      responses:
+        '200':
+          description: Kode pairing sementara berhasil dihasilkan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TelegramPairResponse'
+
+  /system/status:
+    get:
+      summary: Status Kesehatan Sistem, Kapasitas RAM/Disk, dan Mail Engine
+      operationId: getSystemHealth
+      tags:
+        - System
+      responses:
+        '200':
+          description: Status metrik kesehatan sistem.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemHealthResponse'
+
+  /system/audit-logs:
+    get:
+      summary: Log Audit Aktivitas Sistem & Pengguna
+      operationId: listAuditLogs
+      tags:
+        - System
+      parameters:
+        - $ref: '#/components/parameters/PageQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+      responses:
+        '200':
+          description: Daftar rekaman audit log.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Otentikasi berbasis JWT token untuk sesi Web Dashboard.
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-DomiBox-API-Key
+      description: Kunci API privat untuk integrasi bot atau script otomatisasi.
+
+  parameters:
+    PageQuery:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+    LimitQuery:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+    DomainIdPath:
+      name: domainId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    MailboxIdPath:
+      name: mailboxId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    MessageIdPath:
+      name: messageId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    ErrorEnvelope:
+      type: object
+      required:
+        - success
+        - error
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              example: ERR_RESOURCE_NOT_FOUND
+            message:
+              type: string
+              example: Entitas yang diminta tidak ditemukan di sistem.
+            details:
+              type: object
+              nullable: true
+            timestamp:
+              type: string
+              format: date-time
+
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: admin
+        password:
+          type: string
+          format: password
+          example: SuperSecretP@ssw0rd!
+        totpCode:
+          type: string
+          example: '123456'
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        token:
+          type: string
+        expiresIn:
+          type: integer
+          example: 86400
+        user:
+          $ref: '#/components/schemas/UserProfile'
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        role:
+          type: string
+          example: OWNER
+        telegramLinked:
+          type: boolean
+
+    CreateDomainRequest:
+      type: object
+      required:
+        - domainName
+      properties:
+        domainName:
+          type: string
+          example: sintaksis.biz.id
+        description:
+          type: string
+          example: Domain pilot DomiBox
+
+    DomainDetailResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        domainName:
+          type: string
+          example: sintaksis.biz.id
+        verificationToken:
+          type: string
+          example: domibox-verify=d82fa0192e104
+        status:
+          type: string
+          enum: [PENDING_VERIFICATION, ACTIVE, INACTIVE, FAILED]
+        mxVerified:
+          type: boolean
+        txtVerified:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    DomainListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DomainDetailResponse'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    DnsVerificationResponse:
+      type: object
+      properties:
+        domainId:
+          type: string
+          format: uuid
+        verified:
+          type: boolean
+        mxRecordFound:
+          type: string
+          example: mail.sintaksis.biz.id
+        txtRecordFound:
+          type: string
+          example: domibox-verify=d82fa0192e104
+        status:
+          type: string
+          example: ACTIVE
+
+    CreateMailboxRequest:
+      type: object
+      required:
+        - domainId
+        - type
+      properties:
+        domainId:
+          type: string
+          format: uuid
+        localPart:
+          type: string
+          description: Opsional; jika kosong sistem mengacak lokal part
+          example: test.signup
+        type:
+          type: string
+          enum: [temporary, permanent]
+        durationMinutes:
+          type: integer
+          description: Hanya berlaku untuk tipe temporary (default 60 menit)
+          default: 60
+        label:
+          type: string
+          example: QA Signup Verification
+
+    UpdateMailboxRequest:
+      type: object
+      properties:
+        extendMinutes:
+          type: integer
+          example: 60
+        status:
+          type: string
+          enum: [active, suspended]
+        convertToPermanent:
+          type: boolean
+        label:
+          type: string
+
+    MailboxDetailResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        address:
+          type: string
+          example: test.signup@sintaksis.biz.id
+        domainId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [temporary, permanent]
+        status:
+          type: string
+          enum: [active, expired, suspended]
+        expiresAt:
+          type: string
+          format: date-time
+          nullable: true
+        messageCount:
+          type: integer
+          example: 3
+        createdAt:
+          type: string
+          format: date-time
+
+    MailboxListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MailboxDetailResponse'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    MessageDetailResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        mailboxId:
+          type: string
+          format: uuid
+        fromAddress:
+          type: string
+          example: auth@service.com
+        toAddress:
+          type: string
+          example: test.signup@sintaksis.biz.id
+        subject:
+          type: string
+          example: Your DomiBox Verification Code is 839210
+        bodyText:
+          type: string
+        bodyHtmlSanitized:
+          type: string
+        extractedOtp:
+          type: string
+          nullable: true
+          example: '839210'
+        extractedLinks:
+          type: array
+          items:
+            type: string
+        receivedAt:
+          type: string
+          format: date-time
+
+    MessageListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageDetailResponse'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    TelegramPairResponse:
+      type: object
+      properties:
+        pairingCode:
+          type: string
+          example: DBX-PAIR-9481
+        expiresInSeconds:
+          type: integer
+          example: 300
+        botUsername:
+          type: string
+          example: DomiBoxBot
+
+    SystemHealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: HEALTHY
+        uptimeSeconds:
+          type: integer
+        memoryUsageMb:
+          type: number
+          example: 412.5
+        diskAvailableGb:
+          type: number
+          example: 48.2
+        databaseConnected:
+          type: boolean
+          example: true
+        stalwartJmapStatus:
+          type: string
+          example: OK
+
+    AuditLogResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              action:
+                type: string
+                example: MAILBOX_CREATED
+              details:
+                type: object
+              ipAddress:
+                type: string
+              createdAt:
+                type: string
+                format: date-time
+
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalItems:
+          type: integer
+        totalPages:
+          type: integer
+
+  responses:
+    BadRequestError:
+      description: Permintaan tidak valid / parameter salah.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    UnauthorizedError:
+      description: Token otentikasi tidak valid atau kedaluwarsa.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    NotFoundError:
+      description: Entitas yang diminta tidak ditemukan.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    ConflictError:
+      description: "Konflik entitas (contoh: domain atau alamat email sudah terdaftar)."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    RateLimitError:
+      description: Melebihi ambang batas pemanggilan API (Throttled).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
