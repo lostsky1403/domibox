@@ -47,12 +47,25 @@ The PoC is **component-scoped and independently reversible**: Compose project `d
 | --- | --- |
 | `docker-compose.yml` | Isolated `domibox-poc` project: exact image pin, 25 + loopback 8080 only, dedicated volumes/network/labels, no Caddy/rustfs references. |
 | `.env.example` | No-credential template for host bind, admin port and restart policy. Copy locally; never commit `.env`. |
+| `.gitignore` | Excludes generated `reports/`, `__pycache__/`, `.env` and logs from commits. |
 | `config/config.json.example` | Reference minimal RocksDB DataStore object (`{"@type":"RocksDb","path":"/var/lib/stalwart/"}`). The wizard writes the real file into the volume. |
 | `docs/vendor-verification.md` | Vendor facts with source URLs, corrections to older project assumptions, explicit NOT VERIFIED list. |
 | `scripts/preflight-check.sh` | Read-only prerequisite check (CPU/RAM/disk/inode, ports, Docker, UFW-with-`sudo -n`, existing workloads). Never changes anything. |
-| `scripts/validate.sh` | Local static validation: Compose parse, exact pin, isolation, loopback bind, no secret leakage, JSON validity. |
-| `scripts/smoke-test.sh` | Guarded SMTP/JMAP smoke-test **definitions**; executes only with `--authorized` + `POC_LIVE_AUTHORIZED=yes` + env credentials. |
+| `scripts/validate.sh` | Local static validation: Compose parse, pin, isolation, loopback bind, port collision, secret scan, placeholder scan, Python compile and mocked self-tests. |
+| `scripts/smoke-test.sh` | Thin dispatcher to `poc_runner.py`; default is STATIC. No placeholders, no embedded credentials. |
+| `scripts/poc_runner.py` | Real deterministic runner with STATIC / LOCAL / EXTERNAL modes, strict JMAP/HTTP validation, structured PASS/FAIL/BLOCKED/NOT_EXECUTED report and ownership-guarded cleanup. |
+| `scripts/test_poc_runner.py` | 14 mocked fail-closed tests covering success, auth failure, invalid method, missing domain, creation failure, missing message, SMTP timeout, cleanup failure, invalid JSON, missing id, wrong-account deletion, and mode gates. |
 | `scripts/rollback.sh` | Component-scoped stop (reversible) or `down -v` with ownership check + typed confirmation. |
+
+### Test modes (never conflated)
+
+| Mode | Invocation | What it does |
+| --- | --- | --- |
+| **STATIC / DRY RUN** (default) | `bash scripts/smoke-test.sh` | Zero network calls. Validates mode/config locally, reports all live tests as `NOT_EXECUTED` and describes intended operations. No account, Docker, DNS or firewall changes. |
+| **LOCAL FUNCTIONAL** | `bash scripts/smoke-test.sh --mode local --local-authorized --confirm-local LOCAL-POC` | Against an already-running local PoC only. Rejects non-loopback JMAP/SMTP hosts. Creates one unique throwaway identity, sends to its alias, verifies via JMAP, then destroys only that id. Credentials via `POC_ADMIN_USER`/`POC_ADMIN_PASS` or `POC_ADMIN_TOKEN`. |
+| **EXTERNAL INBOUND** | `bash scripts/smoke-test.sh --mode external --external-smtp-host <public-ip> --external-authorized --confirm-external <public-ip>` | SMTP test from an independent network to the public endpoint, requires exact host confirmation and a public (non-private) address. JMAP verification is via the authorized loopback tunnel. A local SMTP success never counts as external deliverability. |
+
+Every run writes `reports/<run-id>/report.json` with Test ID, description, preconditions, execution status, expected/actual, evidence location and failure reason. Values are `PASS`, `FAIL`, `BLOCKED` or `NOT_EXECUTED` — valid JSON is never treated as functional success, and an unexecuted test is never PASS. Credentials and generated account passwords are redacted from every report and evidence file.
 
 ---
 
@@ -84,7 +97,7 @@ Executing any of this requires owner authorization recorded first.
 6. Open `http://127.0.0.1:8080/admin`; read the temporary `admin` password from `docker logs domibox-poc-stalwart 2>&1 | grep -A8 'bootstrap mode'`.
 7. Complete the wizard: hostname `mail.sintaksis.biz.id` (or approved PoC host), default domain `sintaksis.biz.id`, **RocksDB default**, **internal directory**, **Console logging**, **Manual DNS management**, automatic certificate OFF. Record the generated administrator address + password securely; do not commit it.
 8. Restart the container: `docker compose -f docker-compose.yml -p domibox-poc restart stalwart`.
-9. Run the guarded smoke tests (§6). Capture evidence under `docs/08-delivery/poc-evidence/` in a later, authorized commit; redact secrets.
+9. Run the STATIC report first (`bash scripts/smoke-test.sh`). With separate authorization for a running PoC, run the LOCAL or EXTERNAL mode; copy the generated `reports/<run-id>/` evidence to `docs/08-delivery/poc-evidence/` in a later authorized commit (reports are gitignored).
 10. Stop with `bash scripts/rollback.sh stop`. Destroy only after approval via `bash scripts/rollback.sh --destroy-data`.
 
 ---
@@ -93,12 +106,13 @@ Executing any of this requires owner authorization recorded first.
 
 **Performed locally (2026-11-18):**
 
-- `docker compose version` → v2.38.2-desktop.1 available.
-- `docker compose -f docker-compose.yml config --quiet` → parses (see commit validation log).
-- `bash scripts/validate.sh` → static checks: pin, isolation, loopback binding, port-collision review, JSON validity, secret-leak scan.
-- `bash scripts/preflight-check.sh` syntax reviewed; intended for the target host, not run against live infrastructure in this task.
+- `docker compose version` → v2.38.2-desktop.1 available; `docker compose -f docker-compose.yml config --quiet` → exit 0.
+- `bash -n` on all shell scripts → exit 0 (via the real Git Bash at `C:\Program Files\Git\bin\bash.exe`; the `bash` on PATH is a broken WSL shim).
+- `python scripts/test_poc_runner.py` → **14/14 mocked tests pass**; no network, Docker or VPS involved.
+- `bash scripts/validate.sh` → Compose parse, exact v1.1.1 pin, `domibox-poc` isolation, loopback bind, port-collision review, JSON validity, no secret-like assignments, no `REPLACE_WITH_*` placeholders, Python compile, self-tests.
+- `bash scripts/smoke-test.sh` (STATIC) → all live tests reported `NOT_EXECUTED`; no network calls.
 
-**Not performed:** image pull, container start, SMTP/JMAP functional tests, external port-25 test, DNS changes. All live capabilities remain `NOT VERIFIED` / `NOT EXECUTED`.
+**Not performed:** image pull, container start, real SMTP/JMAP functional tests, external port-25 test, DNS changes. All live capabilities remain `NOT VERIFIED` / `NOT EXECUTED`.
 
 ---
 

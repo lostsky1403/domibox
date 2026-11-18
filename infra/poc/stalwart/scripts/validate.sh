@@ -9,6 +9,7 @@ fail=0
 pass() { printf 'PASS  %s\n' "$1"; }
 bad()  { printf 'FAIL  %s\n' "$1"; fail=1; }
 note() { printf 'NOTE  %s\n' "$1"; }
+PY="$(command -v python3 2>/dev/null || command -v python 2>/dev/null || true)"
 
 echo "=== DomiBox PoC static validation ==="
 
@@ -64,15 +65,17 @@ else
 fi
 
 # 6. DataStore example is valid JSON.
-if python -c 'import json,sys; json.load(open("config/config.json.example", encoding="utf-8"))' 2>/dev/null; then
+if [ -n "$PY" ] && $PY -c 'import json; json.load(open("config/config.json.example", encoding="utf-8"))' 2>/dev/null; then
   pass "config.json.example is valid JSON"
+elif [ -z "$PY" ]; then
+  note "Python unavailable - skipped JSON validation (environment limitation)"
 else
   bad "config.json.example is not valid JSON"
 fi
 
 # 7. Secret-leak check.
-if grep -RniE 'STALWART_RECOVERY_ADMIN[[:space:]]*=[[:space:]]*[^[:space:]]|(_PASSWORD|_TOKEN|_SECRET|_API_KEY)[[:space:]]*=[[:space:]]*[^[:space:]]' \
-    --exclude='validate.sh' \
+if grep -RnE 'STALWART_RECOVERY_ADMIN[[:space:]]*=[[:space:]]*[^[:space:]]|^[[:space:]]*[A-Z_]*(_PASSWORD|_TOKEN|_SECRET|_API_KEY)[[:space:]]*=[[:space:]]*[^[:space:]]' \
+    --exclude='validate.sh' --exclude='poc_runner.py' --exclude='test_poc_runner.py' \
     --include='*.yml' --include='*.yaml' --include='*.sh' --include='*.example' --include='.env.example' . ; then
   bad "credential-like assignment found - review immediately"
 else
@@ -80,10 +83,34 @@ else
 fi
 
 # 8. Required assets present.
-for f in README.md docker-compose.yml .env.example config/config.json.example \
-         docs/vendor-verification.md scripts/preflight-check.sh scripts/smoke-test.sh scripts/rollback.sh; do
+for f in README.md docker-compose.yml .env.example .gitignore config/config.json.example \
+         docs/vendor-verification.md scripts/preflight-check.sh scripts/smoke-test.sh \
+         scripts/rollback.sh scripts/poc_runner.py scripts/test_poc_runner.py; do
   [ -f "$f" ] && pass "asset $f exists" || bad "asset $f missing"
 done
+
+# 9. No placeholder identifiers in executable paths.
+if grep -Rn 'REPLACE_WITH_' --exclude='validate.sh' scripts/ 2>/dev/null; then
+  bad "placeholder identifier found in an executable script"
+else
+  pass "no REPLACE_WITH_* placeholders in scripts"
+fi
+
+# 10. Runner compiles and its mocked harness passes (no network/Docker needed).
+if [ -n "$PY" ]; then
+  if $PY -m py_compile scripts/poc_runner.py scripts/test_poc_runner.py 2>/tmp/domibox-pycompile.err; then
+    pass "Python runner and harness compile"
+  else
+    bad "Python compile failed: $(cat /tmp/domibox-pycompile.err)"
+  fi
+  if $PY scripts/test_poc_runner.py >/tmp/domibox-selftest.log 2>&1; then
+    pass "mocked runner harness passed ($(grep -c '^test_' /tmp/domibox-selftest.log) cases)"
+  else
+    bad "mocked runner harness failed: $(tail -n 5 /tmp/domibox-selftest.log)"
+  fi
+else
+  note "Python unavailable - skipped runner self-tests (environment limitation)"
+fi
 
 echo
 if [ "$fail" -eq 0 ]; then

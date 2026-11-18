@@ -1,0 +1,6 @@
+# Generated PoC evidence and local overrides - never commit.
+reports/
+__pycache__/
+*.pyc
+.env
+*.log
