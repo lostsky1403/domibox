@@ -53,8 +53,8 @@ The PoC is **component-scoped and independently reversible**: Compose project `d
 | `scripts/preflight-check.sh` | Read-only prerequisite check (CPU/RAM/disk/inode, ports, Docker, UFW-with-`sudo -n`, existing workloads). Never changes anything. |
 | `scripts/validate.sh` | Local static validation: Compose parse, pin, isolation, loopback bind, port collision, secret scan, placeholder scan, Python compile and mocked self-tests. |
 | `scripts/smoke-test.sh` | Thin dispatcher to `poc_runner.py`; default is STATIC. No placeholders, no embedded credentials. |
-| `scripts/poc_runner.py` | Real deterministic runner with STATIC / LOCAL / EXTERNAL modes, strict JMAP/HTTP validation, structured PASS/FAIL/BLOCKED/NOT_EXECUTED report and ownership-guarded cleanup. |
-| `scripts/test_poc_runner.py` | 14 mocked fail-closed tests covering success, auth failure, invalid method, missing domain, creation failure, missing message, SMTP timeout, cleanup failure, invalid JSON, missing id, wrong-account deletion, and mode gates. |
+| `scripts/poc_runner.py` | Real deterministic runner with STATIC / LOCAL / EXTERNAL modes, strict JMAP/HTTP validation, deterministic overall status/exit codes, bounded mail polling, explicit TLS gates, vantage checks, credential sanitization and ownership-guarded cleanup. |
+| `scripts/test_poc_runner.py` | 27 mocked fail-closed tests: the original 14 plus overall-status rules, readback failure, ambiguous creation, duplicate/missing/wrong JMAP responses, delayed visibility, polling timeout, missing vantage, STARTTLS failures and credential leakage. |
 | `scripts/rollback.sh` | Component-scoped stop (reversible) or `down -v` with ownership check + typed confirmation. |
 
 ### Test modes (never conflated)
@@ -62,10 +62,12 @@ The PoC is **component-scoped and independently reversible**: Compose project `d
 | Mode | Invocation | What it does |
 | --- | --- | --- |
 | **STATIC / DRY RUN** (default) | `bash scripts/smoke-test.sh` | Zero network calls. Validates mode/config locally, reports all live tests as `NOT_EXECUTED` and describes intended operations. No account, Docker, DNS or firewall changes. |
-| **LOCAL FUNCTIONAL** | `bash scripts/smoke-test.sh --mode local --local-authorized --confirm-local LOCAL-POC` | Against an already-running local PoC only. Rejects non-loopback JMAP/SMTP hosts. Creates one unique throwaway identity, sends to its alias, verifies via JMAP, then destroys only that id. Credentials via `POC_ADMIN_USER`/`POC_ADMIN_PASS` or `POC_ADMIN_TOKEN`. |
-| **EXTERNAL INBOUND** | `bash scripts/smoke-test.sh --mode external --external-smtp-host <public-ip> --external-authorized --confirm-external <public-ip>` | SMTP test from an independent network to the public endpoint, requires exact host confirmation and a public (non-private) address. JMAP verification is via the authorized loopback tunnel. A local SMTP success never counts as external deliverability. |
+| **LOCAL FUNCTIONAL** | `bash scripts/smoke-test.sh --mode local --local-authorized --confirm-local LOCAL-POC --starttls [--insecure-smtp-tls]` | Against an already-running local PoC only. Rejects non-loopback JMAP/SMTP hosts. Registers the created id as run-owned before readback, creates a unique identity, sends to its alias, polls JMAP for the message, then destroys only that id. Credentials via `POC_ADMIN_USER`/`POC_ADMIN_PASS` or `POC_ADMIN_TOKEN`. |
+| **EXTERNAL INBOUND** | `bash scripts/smoke-test.sh --mode external --external-smtp-host <public-ip> --external-authorized --confirm-external <public-ip> --starttls --vantage-id <id> --vantage-public-ip <ip> --target-public-ip <ip> --vantage-evidence <how-observed>` | Requires proof of an independent public vantage point; BLOCKED when the origin cannot be shown independent (a local/hairpin test never proves public SMTP reachability). JMAP verification uses the authorized loopback tunnel. |
 
-Every run writes `reports/<run-id>/report.json` with Test ID, description, preconditions, execution status, expected/actual, evidence location and failure reason. Values are `PASS`, `FAIL`, `BLOCKED` or `NOT_EXECUTED` — valid JSON is never treated as functional success, and an unexecuted test is never PASS. Credentials and generated account passwords are redacted from every report and evidence file.
+Common controls: `--poll-deadline <seconds>` (default 15) and `--poll-interval <seconds>` (default 1) bound message-visibility polling; `--starttls` makes TLS an explicit gate; `--insecure-smtp-tls` records an intentional verification skip for the authorized PoC; `--plain-smtp-test` reports plaintext acceptance separately.
+
+Every run writes `reports/<run-id>/report.json` with Test ID, description, preconditions, execution status, expected/actual, evidence location and failure reason. Values are `PASS`, `FAIL`, `BLOCKED` or `NOT_EXECUTED` — valid JSON is never treated as functional success, and an unexecuted test is never PASS. Overall status is deterministic: every required test PASS → `PASS`; any FAIL → `FAIL`; a prerequisite failure → `BLOCKED`; no live tests executed (STATIC) → `NOT_EXECUTED`; otherwise `INCOMPLETE`. Exit codes are `0` (PASS / NOT_EXECUTED), `1` (FAIL), `2` (BLOCKED), `3` (INCOMPLETE). STATIC is never represented as a successful live functional test. Credentials, URL userinfo, sensitive query values and generated account passwords are redacted from all reports and evidence.
 
 ---
 
@@ -108,26 +110,38 @@ Executing any of this requires owner authorization recorded first.
 
 - `docker compose version` → v2.38.2-desktop.1 available; `docker compose -f docker-compose.yml config --quiet` → exit 0.
 - `bash -n` on all shell scripts → exit 0 (via the real Git Bash at `C:\Program Files\Git\bin\bash.exe`; the `bash` on PATH is a broken WSL shim).
-- `python scripts/test_poc_runner.py` → **14/14 mocked tests pass**; no network, Docker or VPS involved.
+- `python scripts/test_poc_runner.py` → **27/27 mocked tests pass**; no network, Docker or VPS involved.
 - `bash scripts/validate.sh` → Compose parse, exact v1.1.1 pin, `domibox-poc` isolation, loopback bind, port-collision review, JSON validity, no secret-like assignments, no `REPLACE_WITH_*` placeholders, Python compile, self-tests.
-- `bash scripts/smoke-test.sh` (STATIC) → all live tests reported `NOT_EXECUTED`; no network calls.
+- `bash scripts/smoke-test.sh` (STATIC) → `overall=NOT_EXECUTED`, `live_functional_test=false`; no network calls.
 
 **Not performed:** image pull, container start, real SMTP/JMAP functional tests, external port-25 test, DNS changes. All live capabilities remain `NOT VERIFIED` / `NOT EXECUTED`.
 
+### Two-stage live handoff (NOT authorized by this repository)
+
+**Stage A — private live PoC** (separate authorization required): deploy `stalwartlabs/stalwart:v1.1.1` using only the `domibox-poc` Compose project; keep SMTP at `127.0.0.1:25` and management at `127.0.0.1:8080`; access management through `ssh -L 8080:127.0.0.1:8080 vps-tencent3b`; use throwaway admin/test identities; run the LOCAL mode with `--starttls --insecure-smtp-tls` against the self-signed PoC certificate; verify real management/mail APIs; measure memory, CPU and disk; preserve Caddy, rustfs, n8n and all other workloads; make **no** Cloudflare, UFW or Security Group changes; stop reversibly with `scripts/rollback.sh stop` when finished.
+
+**Stage B — public inbound SMTP** (separate authorization after Stage A passes): Tencent SG + UFW allow inbound TCP/25; publish the SMTP listener; add the approved Cloudflare MX/A/TXT records; run the EXTERNAL mode from a proven independent vantage; capture evidence. Stage A and Stage B must not be combined into one unreviewed deployment.
+
 ---
 
-## 7. Exact changes requiring owner approval before live PoC
+## 7. Exact changes requiring owner approval
 
-1. **Docker image / version:** accept the v1.1.1 pin (ADR-002 still says v1.0.3; PoC plan says v1.1.0).
-2. **Tencent Security Group:** add inbound TCP/25 for `ins-f6b2sjfy`.
-3. **UFW:** allow `25/tcp` (currently not allowed per owner evidence).
-4. **Cloudflare DNS:** A `mail.sintaksis.biz.id` → `43.153.206.84`, MX → mail (10), SPF, DMARC, DKIM from Stalwart — DNS Only (grey cloud). **Not changed in this task.**
-5. **Host bind:** set `POC_SMTP_HOST_IP=0.0.0.0` only after 2–4 are done.
-6. **Throwaway credentials / domain:** authorize creation of PoC-only admin + test account.
-7. **Caddy:** no change is planned; any reverse-proxy stanza for Stalwart HTTPS/JMAP is a separate, approval-gated change.
-8. **Data destruction:** required only at teardown, with ownership check and explicit approval.
+**Stage A (private PoC):**
+1. Accept the `stalwartlabs/stalwart:v1.1.1` pin (ADR-002 says v1.0.3; PoC plan says v1.1.0).
+2. Authorize deployment of the isolated `domibox-poc` stack with loopback-only SMTP/management and throwaway admin/test identities.
+3. Authorize the intentionally skipped TLS certificate verification for the self-signed PoC (`--insecure-smtp-tls`), reported explicitly by T-T03.
+4. Authorize reversible teardown; data destruction (`down -v`) separately, with ownership check.
 
-**Go/No-Go:** local preparation is complete; live PoC is **NO-GO until 1–6 are approved and executed in a separate authorized task**.
+**Stage B (public inbound, only after Stage A):**
+5. Tencent Security Group inbound TCP/25 for `ins-f6b2sjfy`.
+6. UFW `allow 25/tcp` (currently not allowed per owner evidence).
+7. Cloudflare A `mail.sintaksis.biz.id` → `43.153.206.84`, MX → mail (10), SPF, DMARC, DKIM — DNS Only. **Not changed in this task.**
+8. Host bind `POC_SMTP_HOST_IP=0.0.0.0` only after items 5–7.
+9. Independent vantage evidence for the EXTERNAL test.
+
+**Separate, approval-gated:** any Caddy reverse-proxy stanza for Stalwart HTTPS/JMAP. No Stage A or Stage B change is authorized by this repository.
+
+**Go/No-Go:** local preparation and the fail-closed harness are complete; Stage A and Stage B are **NO-GO until the corresponding approvals above are recorded and executed in separate authorized tasks**.
 
 ---
 
